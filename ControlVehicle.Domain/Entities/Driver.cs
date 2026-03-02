@@ -36,7 +36,7 @@ public class Driver
 		DateExpiration = dateExpiration;
 	}
 
-	private void Validation(string name)
+	private static void Validation(string name)
 	{
 		if (string.IsNullOrWhiteSpace(name))
 			throw new ArgumentException("Name cannot be empty.", nameof(name));

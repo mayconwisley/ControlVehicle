@@ -1,13 +1,14 @@
 ﻿using ControlVehicle.Domain.Entities;
+using ControlVehicle.Domain.ValueObjects;
 
 namespace ControlVehicle.Domain.Repositories;
 
 public interface IDriverRepository
 {
-    public Task<IEnumerable<Driver>> GetAll(int page, int size, string search);
-    public Task<Driver> GetByCnh(string cnh);
-    public Task<Driver> Create(Driver driver);
-    public Task<Driver> Update(Driver driver);
-    public Task<Driver> Delete(string cnh);
-    public Task<int> TotalDriver();
+	public Task<IReadOnlyList<Driver>> GetAll(int page = 1, int size = 5, string? search = "", CancellationToken ct = default);
+	public Task<Driver?> GetById(Guid id, CancellationToken ct = default);
+	public Task<Driver?> GetByCnh(Cnh cnh, CancellationToken ct = default);
+	public Task Create(Driver driver, CancellationToken ct = default);
+	public void Update(Driver driver, CancellationToken ct = default);
+	public void Delete(Driver driver, CancellationToken ct = default);
 }

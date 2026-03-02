@@ -1,70 +1,42 @@
-﻿using ControlVehicle.Api.Models.Vehicle;
-using ControlVehicle.Dto.Vehicle;
+﻿using ControlVehicle.Domain.Entities;
+using ControlVehicle.Models.Dtos;
 
 namespace ControlVehicle.Models.MappingDto;
 
 public static class VehicleMapping
 {
-    public static IEnumerable<VehicleDto> ConvertVehiclesToDtos(this IEnumerable<VehicleModel> vehicles)
-    {
-        return (from vehicle in vehicles
-                select new VehicleDto
-                {
-                    Id = vehicle.Id,
-                    Renavam = vehicle.Renavam,
-                    Model = vehicle.Model,
-                    Plate = vehicle.Plate,
-                    Fuel = vehicle.Fuel,
-                    Chassi = vehicle.Chassi,
-                    Active = vehicle.Active,
-                    Color = vehicle.Color
-
-                }).ToList();
-    }
-    public static IEnumerable<VehicleModel> ConvertDtosToVehicles(this IEnumerable<VehicleDto> vehicles)
-    {
-        return (from vehicle in vehicles
-                select new VehicleModel
-                {
-                    Id = vehicle.Id,
-                    Renavam = vehicle.Renavam,
-                    Model = vehicle.Model,
-                    Plate = vehicle.Plate,
-                    Fuel = vehicle.Fuel,
-                    Chassi = vehicle.Chassi,
-                    Active = vehicle.Active,
-                    Color = vehicle.Color
-
-                }).ToList();
-    }
-    public static VehicleDto ConvertVehicleToDto(this VehicleModel vehicle)
-    {
-        return new VehicleDto
-        {
-            Id = vehicle.Id,
-            Renavam = vehicle.Renavam,
-            Model = vehicle.Model,
-            Plate = vehicle.Plate,
-            Fuel = vehicle.Fuel,
-            Chassi = vehicle.Chassi,
-            Active = vehicle.Active,
-            Color = vehicle.Color
-
-        };
-    }
-    public static VehicleModel ConvertDtoToVehicle(this VehicleDto vehicle)
-    {
-        return new VehicleModel
-        {
-            Id = vehicle.Id,
-            Renavam = vehicle.Renavam,
-            Model = vehicle.Model,
-            Plate = vehicle.Plate,
-            Fuel = vehicle.Fuel,
-            Chassi = vehicle.Chassi,
-            Active = vehicle.Active,
-            Color = vehicle.Color
-
-        };
-    }
+	public static IEnumerable<VehicleDto> ConvertVehiclesToDtos(this IEnumerable<Vehicle> vehicles)
+	{
+		return vehicles.Select(s => s.ConvertVehicleToDto());
+	}
+	public static IEnumerable<Vehicle> ConvertDtosToVehicles(this IEnumerable<VehicleDto> vehicleDtos)
+	{
+		return vehicleDtos.Select(s => s.ConvertDtoToVehicle());
+	}
+	public static VehicleDto ConvertVehicleToDto(this Vehicle vehicle)
+	{
+		return new VehicleDto
+		(
+			vehicle.Id,
+			vehicle.Renavam,
+			vehicle.Model,
+			vehicle.LicensePlate,
+			vehicle.Fuel,
+			vehicle.Chassi,
+			vehicle.VehicleColor,
+			vehicle.Active
+		);
+	}
+	public static Vehicle ConvertDtoToVehicle(this VehicleDto vehicleDto)
+	{
+		return new Vehicle
+		(
+			vehicleDto.LicensePlate,
+			vehicleDto.Model,
+			vehicleDto.Renavam,
+			vehicleDto.Chassi,
+			vehicleDto.Fuel,
+			vehicleDto.VehicleColor
+		);
+	}
 }

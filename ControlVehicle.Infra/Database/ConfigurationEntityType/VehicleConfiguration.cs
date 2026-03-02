@@ -46,7 +46,7 @@ public sealed class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
 			.HasColumnType("character varying(20)")
 			.IsRequired();
 
-		builder.Property(x => x.ColorVehicle)
+		builder.Property(x => x.VehicleColor)
 			.HasConversion<string>()
 			.HasColumnType("character varying(20)")
 			.IsRequired();

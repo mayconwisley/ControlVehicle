@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace ControlVehicle.Infra.Repositories;
 
-namespace ControlVehicle.Infra.Repositories
+public sealed class VehicleRepository
 {
-	internal class VehicleRepository
-	{
-	}
 }

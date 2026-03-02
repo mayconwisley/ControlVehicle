@@ -1,12 +1,4 @@
-using ControlVehicle.Api.Database;
-using ControlVehicle.Api.Repository.Driver;
-using ControlVehicle.Api.Repository.Driver.Interface;
-using ControlVehicle.Api.Repository.Vehicle;
-using ControlVehicle.Api.Repository.Vehicle.Interface;
-using ControlVehicle.Api.Services.Driver;
-using ControlVehicle.Api.Services.Driver.Interface;
-using ControlVehicle.Api.Services.Vehicle;
-using ControlVehicle.Api.Services.Vehicle.Interface;
+using ControlVehicle.Infra;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,24 +10,35 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Database //////////////////////////////
+// Connection string
 var passDatabase = Environment.GetEnvironmentVariable("SQLSenha", EnvironmentVariableTarget.Machine);
-string connectionDatabase = builder.Configuration.GetConnectionString("VehicleConnection")!.Replace("{{pass}}", passDatabase);
-builder.Services.AddDbContext<VehicleDbContext>(x => x.UseSqlServer(connectionDatabase));
-//////////////////////////////////////////
 
-builder.Services.AddScoped<IDriverRepository, DriverRepository>();
-builder.Services.AddScoped<IDriverServices, DriverServices>();
-builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
-builder.Services.AddScoped<IVehicleServices, VehicleServices>();
+if (string.IsNullOrWhiteSpace(passDatabase))
+	throw new InvalidOperationException("Variável de ambiente 'SQLSenha' não encontrada (Machine).");
+
+var connectionString = builder.Configuration
+	.GetConnectionString("VehicleConnection")!;
+
+// Se o appsettings já tem Password=, dá pra só substituir o final:
+connectionString = connectionString + passDatabase;
+// (melhor opção abaixo 👇)
+
+// ✅ Recomendo NpgsqlConnectionStringBuilder (mais seguro)
+var csb = new Npgsql.NpgsqlConnectionStringBuilder(connectionString)
+{
+	Password = passDatabase
+};
+
+builder.Services.AddInfra(csb.ConnectionString);
+
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+	app.UseSwagger();
+	app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
