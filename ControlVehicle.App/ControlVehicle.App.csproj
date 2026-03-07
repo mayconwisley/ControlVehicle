@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ControlVehicle.Domain\ControlVehicle.Domain.csproj" />
     <ProjectReference Include="..\ControlVehicle.Models\ControlVehicle.Models.csproj" />
   </ItemGroup>
 

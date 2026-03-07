@@ -18,6 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ControlVehicle.App\ControlVehicle.App.csproj" />
+    <ProjectReference Include="..\ControlVehicle.Models\ControlVehicle.Models.csproj" />
     <ProjectReference Include="..\ControlVehicle.Infra\ControlVehicle.Infra.csproj" />
   </ItemGroup>
 

@@ -1,40 +1,31 @@
+using ControlVehicle.App.Services.Driver;
+using ControlVehicle.App.Services.Driver.Interface;
+using ControlVehicle.App.Services.Vehicle;
+using ControlVehicle.App.Services.Vehicle.Interface;
 using ControlVehicle.Infra;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Connection string
 var passDatabase = Environment.GetEnvironmentVariable("SQLSenha", EnvironmentVariableTarget.Machine);
-
 if (string.IsNullOrWhiteSpace(passDatabase))
-	throw new InvalidOperationException("Variável de ambiente 'SQLSenha' não encontrada (Machine).");
+	throw new InvalidOperationException("Variavel de ambiente 'SQLSenha' nao encontrada (Machine).");
 
-var connectionString = builder.Configuration
-	.GetConnectionString("VehicleConnection")!;
-
-// Se o appsettings já tem Password=, dá pra só substituir o final:
-connectionString = connectionString + passDatabase;
-// (melhor opção abaixo 👇)
-
-// ✅ Recomendo NpgsqlConnectionStringBuilder (mais seguro)
+var connectionString = builder.Configuration.GetConnectionString("VehicleConnection")!;
 var csb = new Npgsql.NpgsqlConnectionStringBuilder(connectionString)
 {
 	Password = passDatabase
 };
 
 builder.Services.AddInfra(csb.ConnectionString);
-
+builder.Services.AddScoped<IDriverServices, DriverServices>();
+builder.Services.AddScoped<IVehicleServices, VehicleServices>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
 	app.UseSwagger();
@@ -42,9 +33,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
