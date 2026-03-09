@@ -3,12 +3,22 @@ using ControlVehicle.App.Services.Driver.Interface;
 using ControlVehicle.App.Services.Vehicle;
 using ControlVehicle.App.Services.Vehicle.Interface;
 using ControlVehicle.Infra;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services
+	.AddControllers()
+	.AddJsonOptions(options =>
+	{
+		options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+	});
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+	options.UseInlineDefinitionsForEnums();
+});
 
 var passDatabase = Environment.GetEnvironmentVariable("SQLPassword", EnvironmentVariableTarget.Machine);
 if (string.IsNullOrWhiteSpace(passDatabase))
