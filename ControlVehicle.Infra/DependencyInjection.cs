@@ -16,6 +16,7 @@ public static class DependencyInjection
 		services.AddScoped<IUnitOfWork, UnitOfWork>();
 		services.AddScoped<IDriverRepository, DriverRepository>();
 		services.AddScoped<IVehicleRepository, VehicleRepository>();
+		services.AddScoped<IDriverCnhRepository, DriverCnhRepository>();
 
 		return services;
 	}

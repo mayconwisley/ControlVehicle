@@ -1,11 +1,13 @@
+using Asp.Versioning;
 using ControlVehicle.App.Services.Driver.Interface;
 using ControlVehicle.Models.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ControlVehicle.Api.Controllers;
+namespace ControlVehicle.Api.Controllers.V1;
 
-[Route("api/[controller]")]
 [ApiController]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public class DriverController(IDriverServices driverServices) : ControllerBase
 {
 	private readonly IDriverServices _driverServices = driverServices;
@@ -37,7 +39,7 @@ public class DriverController(IDriverServices driverServices) : ControllerBase
 		});
 	}
 
-	[HttpGet("{cnh}", Name = "GetDriver")]
+	[HttpGet("{cnh}", Name = "GetDriverV1")]
 	public async Task<ActionResult<DriverDto>> GetByCnh(string cnh)
 	{
 		var driver = await _driverServices.GetByCnh(cnh);
@@ -58,7 +60,7 @@ public class DriverController(IDriverServices driverServices) : ControllerBase
 		}
 
 		await _driverServices.Create(driver);
-		return new CreatedAtRouteResult("GetDriver", new { cnh = driver.Cnh.Number }, driver);
+		return new CreatedAtRouteResult("GetDriverV1", new { version = "1", cnh = driver.Cnh.Number }, driver);
 	}
 
 	[HttpPut("{id:Guid}")]

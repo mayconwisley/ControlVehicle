@@ -1,4 +1,4 @@
-﻿using ControlVehicle.Domain.Entities;
+using ControlVehicle.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -8,15 +8,12 @@ public sealed class VehicleDbContext(DbContextOptions<VehicleDbContext> options)
 {
 	public DbSet<Vehicle> Vehicles => Set<Vehicle>();
 	public DbSet<Driver> Drivers => Set<Driver>();
+	public DbSet<DriverCnh> DriverCnhs => Set<DriverCnh>();
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		// 1) Schema (evite camelCase em Postgres se possível)
 		modelBuilder.HasDefaultSchema("control_vehicle");
-
-		// 2) Aplica as IEntityTypeConfiguration<>
 		modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-
 		base.OnModelCreating(modelBuilder);
 	}
 }

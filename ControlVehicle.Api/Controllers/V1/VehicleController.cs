@@ -1,11 +1,13 @@
+using Asp.Versioning;
 using ControlVehicle.App.Services.Vehicle.Interface;
 using ControlVehicle.Models.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ControlVehicle.Api.Controllers;
+namespace ControlVehicle.Api.Controllers.V1;
 
-[Route("api/[controller]")]
 [ApiController]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public class VehicleController(IVehicleServices vehicleServices) : ControllerBase
 {
 	private readonly IVehicleServices _vehicleServices = vehicleServices;
@@ -37,7 +39,7 @@ public class VehicleController(IVehicleServices vehicleServices) : ControllerBas
 		});
 	}
 
-	[HttpGet("Plate/{plate}", Name = "GetVehicle")]
+	[HttpGet("Plate/{plate}", Name = "GetVehicleV1")]
 	public async Task<ActionResult<VehicleDto>> GetByPlate(string plate)
 	{
 		var vehicle = await _vehicleServices.GetByPlate(plate);
@@ -70,7 +72,7 @@ public class VehicleController(IVehicleServices vehicleServices) : ControllerBas
 		}
 
 		await _vehicleServices.Create(vehicle);
-		return new CreatedAtRouteResult("GetVehicle", new { plate = vehicle.LicensePlate.Value }, vehicle);
+		return new CreatedAtRouteResult("GetVehicleV1", new { version = "1", plate = vehicle.LicensePlate.Value }, vehicle);
 	}
 
 	[HttpPut("{id:Guid}")]
