@@ -10,9 +10,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var passDatabase = Environment.GetEnvironmentVariable("SQLSenha", EnvironmentVariableTarget.Machine);
+var passDatabase = Environment.GetEnvironmentVariable("SQLPassword", EnvironmentVariableTarget.Machine);
 if (string.IsNullOrWhiteSpace(passDatabase))
-	throw new InvalidOperationException("Variavel de ambiente 'SQLSenha' nao encontrada (Machine).");
+	throw new InvalidOperationException("Variavel de ambiente 'SQLPassword' nao encontrada (Machine).");
 
 var connectionString = builder.Configuration.GetConnectionString("VehicleConnection")!;
 var csb = new Npgsql.NpgsqlConnectionStringBuilder(connectionString)
