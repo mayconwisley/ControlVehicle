@@ -11,10 +11,10 @@ public sealed class VehicleRepository(VehicleDbContext db) : IVehicleRepository
 {
 	private readonly VehicleDbContext _db = db;
 
-	public async Task<PagedData<Vehicle>> GetAll(int page, int size, string search, CancellationToken ct = default)
+	public async Task<PagedData<Vehicle>> GetAll(int page = 1, int size = 5, string? search = null, CancellationToken ct = default)
 	{
 		page = page < 1 ? 1 : page;
-		size = size < 1 ? 10 : size;
+		size = size < 1 ? 5 : size;
 
 		IQueryable<Vehicle> query = _db.Vehicles.AsNoTracking();
 

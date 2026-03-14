@@ -1,71 +1,88 @@
 using Asp.Versioning;
 using ControlVehicle.App.Services.Driver;
 using ControlVehicle.App.Services.Driver.Interface;
-using ControlVehicle.App.Services.DriverCnh;
-using ControlVehicle.App.Services.DriverCnh.Interface;
 using ControlVehicle.App.Services.Vehicle;
 using ControlVehicle.App.Services.Vehicle.Interface;
+using ControlVehicle.App.Services.VehicleControl;
+using ControlVehicle.App.Services.VehicleControl.Interface;
 using ControlVehicle.Infra;
-using Microsoft.OpenApi;
+using Scalar.AspNetCore;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-	.AddControllers()
-	.AddJsonOptions(options =>
-	{
-		options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-	});
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 builder.Services.AddApiVersioning(options =>
 {
-	options.DefaultApiVersion = new ApiVersion(1, 0);
-	options.AssumeDefaultVersionWhenUnspecified = true;
-	options.ReportApiVersions = true;
-	options.ApiVersionReader = new UrlSegmentApiVersionReader();
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = new UrlSegmentApiVersionReader();
 }).AddApiExplorer(options =>
 {
-	options.GroupNameFormat = "'v'VVV";
-	options.SubstituteApiVersionInUrl = true;
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
 });
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
+builder.Services.AddOpenApi("v1", v =>
 {
-	options.SwaggerDoc("v1", new OpenApiInfo
-	{
-		Title = "ControlVehicle API",
-		Version = "v1"
-	});
-	options.DocInclusionPredicate((docName, apiDesc) => apiDesc.GroupName == docName);
-	options.UseInlineDefinitionsForEnums();
+    v.AddDocumentTransformer((document, context, ct) =>
+    {
+        document.Info = new()
+        {
+            Title = "Control Vehicle V1",
+            Description = "Documentação do controle de veiculos",
+            Version = "v1"
+        };
+        document.Servers = [
+            new() {Url = "https://localhost:7096", Description = "Servidor Local"}
+        ];
+        document.ExternalDocs = new()
+        {
+            Description = "Acesse aqui para saber mais",
+            Url = new Uri("https://github.com/mayconwisley/ControlVehicle")
+        };
+        return Task.CompletedTask;
+    });
 });
 
 var passDatabase = Environment.GetEnvironmentVariable("SQLPassword", EnvironmentVariableTarget.Machine);
 if (string.IsNullOrWhiteSpace(passDatabase))
-	throw new InvalidOperationException("Variavel de ambiente 'SQLPassword' nao encontrada (Machine).");
+    throw new InvalidOperationException("Variavel de ambiente 'SQLPassword' nao encontrada (Machine).");
 
 var connectionString = builder.Configuration.GetConnectionString("VehicleConnection")!;
 var csb = new Npgsql.NpgsqlConnectionStringBuilder(connectionString)
 {
-	Password = passDatabase
+    Password = passDatabase
 };
 
 builder.Services.AddInfra(csb.ConnectionString);
 builder.Services.AddScoped<IDriverServices, DriverServices>();
 builder.Services.AddScoped<IVehicleServices, VehicleServices>();
-builder.Services.AddScoped<IDriverCnhServices, DriverCnhServices>();
+builder.Services.AddScoped<IVehicleControlServices, VehicleControlServices>();
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-	app.UseSwagger();
-	app.UseSwaggerUI(options =>
-	{
-		options.SwaggerEndpoint("/swagger/v1/swagger.json", "ControlVehicle API v1");
-	});
+    app.MapOpenApi("/doc/{documentName}.json");
+    app.MapScalarApiReference("doc/scalar", options =>
+    {
+        options.ForceDarkMode();
+        options
+            .WithTitle("Controle Veiculo")
+            .WithOpenApiRoutePattern("/doc/{documentName}.json")
+            .AddDocument("v1", "Controle de Veiculo V1")
+            .WithTheme(ScalarTheme.BluePlanet)
+            .WithDefaultHttpClient(ScalarTarget.JavaScript, ScalarClient.Curl);
+
+    });
 }
 
 app.UseHttpsRedirection();

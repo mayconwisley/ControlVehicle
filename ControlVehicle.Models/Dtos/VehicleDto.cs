@@ -1,15 +1,14 @@
-﻿using ControlVehicle.Domain.Enums;
-using ControlVehicle.Domain.ValueObjects;
+using ControlVehicle.Domain.Enums;
 
 namespace ControlVehicle.Models.Dtos;
 
 public sealed record VehicleDto(
-	Guid Id,
-	Renavam Renavam,
-	string Model,
-	LicensePlate LicensePlate,
-	FuelEnum Fuel,
-	Chassi? Chassi,
-	VehicleColorEnum VehicleColor,
-	bool Active
+    Guid Id,
+    string Renavam,
+    string Model,
+    string LicensePlate,
+    FuelEnum Fuel,
+    string? Chassi,
+    VehicleColorEnum VehicleColor,
+    bool Active
 );

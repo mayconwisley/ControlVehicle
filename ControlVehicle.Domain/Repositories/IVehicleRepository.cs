@@ -6,7 +6,7 @@ namespace ControlVehicle.Domain.Repositories;
 
 public interface IVehicleRepository
 {
-	public Task<PagedData<Vehicle>> GetAll(int page, int size, string search, CancellationToken ct = default);
+	public Task<PagedData<Vehicle>> GetAll(int page = 1, int size = 5, string? search = null, CancellationToken ct = default);
 	public Task<Vehicle?> GetById(Guid id, CancellationToken ct = default);
 	public Task<Vehicle?> GetByLicensePlate(LicensePlate licensePlate, CancellationToken ct = default);
 	public Task<Vehicle?> GetByRenavam(Renavam renavam, CancellationToken ct = default);

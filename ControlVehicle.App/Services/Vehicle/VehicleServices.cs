@@ -34,10 +34,10 @@ public class VehicleServices(IVehicleRepository vehicleRepository, IUnitOfWork u
 	public async Task Create(VehicleDto vehicle)
 	{
 		var vehicleEntity = new ControlVehicle.Domain.Entities.Vehicle(
-			vehicle.LicensePlate,
+			LicensePlate.Create(vehicle.LicensePlate),
 			vehicle.Model,
-			vehicle.Renavam,
-			vehicle.Chassi,
+			Renavam.Create(vehicle.Renavam),
+			vehicle.Chassi is null ? null : Chassi.Create(vehicle.Chassi),
 			vehicle.Fuel,
 			vehicle.VehicleColor);
 
@@ -54,10 +54,10 @@ public class VehicleServices(IVehicleRepository vehicleRepository, IUnitOfWork u
 		}
 
 		vehicleEntity.Update(
-			vehicle.LicensePlate,
+			LicensePlate.Create(vehicle.LicensePlate),
 			vehicle.Model,
-			vehicle.Renavam,
-			vehicle.Chassi,
+			Renavam.Create(vehicle.Renavam),
+			vehicle.Chassi is null ? null : Chassi.Create(vehicle.Chassi),
 			vehicle.Fuel,
 			vehicle.VehicleColor);
 

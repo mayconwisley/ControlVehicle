@@ -26,7 +26,12 @@ public class DriverServices(IDriverRepository driverRepository, IUnitOfWork unit
 
 	public async Task Create(DriverDto driver)
 	{
-		var driverEntity = new ControlVehicle.Domain.Entities.Driver(driver.Name, driver.Cnh, driver.CategoryCnh, driver.DateExpiration);
+		var driverEntity = new ControlVehicle.Domain.Entities.Driver(
+			driver.Name,
+			Cnh.Create(driver.Cnh),
+			CategoryCnh.Create(driver.CategoryCnh),
+			driver.DateExpiration);
+
 		await _driverRepository.Create(driverEntity);
 		await _unitOfWork.CommitAsync();
 	}
@@ -39,7 +44,12 @@ public class DriverServices(IDriverRepository driverRepository, IUnitOfWork unit
 			return;
 		}
 
-		driverEntity.Update(driver.Name, driver.Cnh, driver.CategoryCnh, driver.DateExpiration);
+		driverEntity.Update(
+			driver.Name,
+			Cnh.Create(driver.Cnh),
+			CategoryCnh.Create(driver.CategoryCnh),
+			driver.DateExpiration);
+
 		_driverRepository.Update(driverEntity);
 		await _unitOfWork.CommitAsync();
 	}

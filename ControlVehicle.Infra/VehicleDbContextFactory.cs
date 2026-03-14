@@ -20,7 +20,7 @@ public sealed class VehicleDbContextFactory : IDesignTimeDbContextFactory<Vehicl
 			?? Environment.GetEnvironmentVariable("SQLPassword", EnvironmentVariableTarget.Machine)
 			?? string.Empty;
 
-		var connectionString = $"Host=localhost;Port=5432;Database=ParentTreeDB;Username=postgres;Password={password}";
+		var connectionString = $"Host=localhost;Port=5432;Database=control_vehicle;Username=postgres;Password={password}";
 		var options = new DbContextOptionsBuilder<VehicleDbContext>();
 		options.UseNpgsql(connectionString);
 

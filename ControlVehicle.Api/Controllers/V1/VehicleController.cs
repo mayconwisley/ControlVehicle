@@ -10,93 +10,105 @@ namespace ControlVehicle.Api.Controllers.V1;
 [Route("api/v{version:apiVersion}/[controller]")]
 public class VehicleController(IVehicleServices vehicleServices) : ControllerBase
 {
-	private readonly IVehicleServices _vehicleServices = vehicleServices;
+    private readonly IVehicleServices _vehicleServices = vehicleServices;
 
-	[HttpGet]
-	public async Task<ActionResult<IEnumerable<VehicleDto>>> GetAll(int page = 1, int size = 10, string search = "")
-	{
-		var vehicleList = await _vehicleServices.GetAll(page, size, search);
-		decimal totalData = await _vehicleServices.TotalVehicle();
-		decimal totalPage = (totalData / size) <= 0 ? 1 : Math.Ceiling(totalData / size);
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IEnumerable<VehicleDto>>> GetAll(int page = 1, int size = 5, string search = "")
+    {
+        var vehicleList = await _vehicleServices.GetAll(page, size, search);
+        decimal totalData = await _vehicleServices.TotalVehicle();
+        decimal totalPage = (totalData / size) <= 0 ? 1 : Math.Ceiling(totalData / size);
 
-		if (size == 1)
-		{
-			totalPage = totalData;
-		}
+        if (size == 1)
+        {
+            totalPage = totalData;
+        }
 
-		if (!vehicleList.Any())
-		{
-			return NotFound();
-		}
+        if (!vehicleList.Any())
+        {
+            return NotFound();
+        }
 
-		return Ok(new
-		{
-			totalData,
-			page,
-			totalPage,
-			size,
-			vehicleList
-		});
-	}
+        return Ok(new
+        {
+            totalData,
+            page,
+            totalPage,
+            size,
+            vehicleList
+        });
+    }
 
-	[HttpGet("Plate/{plate}", Name = "GetVehicleV1")]
-	public async Task<ActionResult<VehicleDto>> GetByPlate(string plate)
-	{
-		var vehicle = await _vehicleServices.GetByPlate(plate);
-		if (vehicle is null)
-		{
-			return NotFound();
-		}
+    [HttpGet("Plate/{plate}", Name = "GetVehicleV1")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<VehicleDto>> GetByPlate(string plate)
+    {
+        var vehicle = await _vehicleServices.GetByPlate(plate);
+        if (vehicle is null)
+        {
+            return NotFound();
+        }
 
-		return Ok(vehicle);
-	}
+        return Ok(vehicle);
+    }
 
-	[HttpGet("Renavam/{renavam}")]
-	public async Task<ActionResult<VehicleDto>> GetByRenavam(string renavam)
-	{
-		var vehicle = await _vehicleServices.GetByRenavam(renavam);
-		if (vehicle is null)
-		{
-			return NotFound();
-		}
+    [HttpGet("Renavam/{renavam}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<VehicleDto>> GetByRenavam(string renavam)
+    {
+        var vehicle = await _vehicleServices.GetByRenavam(renavam);
+        if (vehicle is null)
+        {
+            return NotFound();
+        }
 
-		return Ok(vehicle);
-	}
+        return Ok(vehicle);
+    }
 
-	[HttpPost]
-	public async Task<ActionResult<VehicleDto>> Post([FromBody] VehicleDto vehicle)
-	{
-		if (vehicle is null)
-		{
-			return BadRequest();
-		}
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<VehicleDto>> Post([FromBody] VehicleDto vehicle)
+    {
+        if (vehicle is null)
+        {
+            return BadRequest();
+        }
 
-		await _vehicleServices.Create(vehicle);
-		return new CreatedAtRouteResult("GetVehicleV1", new { version = "1", plate = vehicle.LicensePlate.Value }, vehicle);
-	}
+        await _vehicleServices.Create(vehicle);
+        return new CreatedAtRouteResult("GetVehicleV1", new { version = "1", plate = vehicle.LicensePlate }, vehicle);
+    }
 
-	[HttpPut("{id:Guid}")]
-	public async Task<ActionResult<VehicleDto>> Put(Guid id, [FromBody] VehicleDto vehicle)
-	{
-		if (vehicle is null || id != vehicle.Id)
-		{
-			return BadRequest();
-		}
+    [HttpPut("{id:Guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<VehicleDto>> Put(Guid id, [FromBody] VehicleDto vehicle)
+    {
+        if (vehicle is null || id != vehicle.Id)
+        {
+            return BadRequest();
+        }
 
-		await _vehicleServices.Update(vehicle);
-		return Ok(vehicle);
-	}
+        await _vehicleServices.Update(vehicle);
+        return Ok(vehicle);
+    }
 
-	[HttpDelete("{renavam}")]
-	public async Task<ActionResult<VehicleDto>> Delete(string renavam)
-	{
-		var vehicle = await _vehicleServices.GetByRenavam(renavam);
-		if (vehicle is null)
-		{
-			return NotFound();
-		}
+    [HttpDelete("{renavam}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<VehicleDto>> Delete(string renavam)
+    {
+        var vehicle = await _vehicleServices.GetByRenavam(renavam);
+        if (vehicle is null)
+        {
+            return NotFound();
+        }
 
-		await _vehicleServices.Delete(renavam);
-		return Ok(vehicle);
-	}
+        await _vehicleServices.Delete(renavam);
+        return Ok(vehicle);
+    }
 }

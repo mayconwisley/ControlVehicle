@@ -1,4 +1,5 @@
-﻿using ControlVehicle.Domain.Entities;
+using ControlVehicle.Domain.Entities;
+using ControlVehicle.Domain.ValueObjects;
 using ControlVehicle.Models.Dtos;
 
 namespace ControlVehicle.Models.MappingDto;
@@ -19,8 +20,8 @@ public static class DriverMapping
 		(
 			driver.Id,
 			driver.Name,
-			driver.Cnh,
-			driver.CategoryCnh,
+			driver.Cnh.Number,
+			driver.CategoryCnh.Value,
 			driver.DateExpiration,
 			driver.Active
 		);
@@ -30,8 +31,8 @@ public static class DriverMapping
 		return new Driver
 		(
 			driverDto.Name,
-			driverDto.Cnh,
-			driverDto.CategoryCnh,
+			Cnh.Create(driverDto.Cnh),
+			CategoryCnh.Create(driverDto.CategoryCnh),
 			driverDto.DateExpiration
 		);
 	}

@@ -8,7 +8,8 @@ public sealed class VehicleDbContext(DbContextOptions<VehicleDbContext> options)
 {
 	public DbSet<Vehicle> Vehicles => Set<Vehicle>();
 	public DbSet<Driver> Drivers => Set<Driver>();
-	public DbSet<DriverCnh> DriverCnhs => Set<DriverCnh>();
+	public DbSet<VehicleControl> VehicleControls => Set<VehicleControl>();
+
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
@@ -17,3 +18,4 @@ public sealed class VehicleDbContext(DbContextOptions<VehicleDbContext> options)
 		base.OnModelCreating(modelBuilder);
 	}
 }
+

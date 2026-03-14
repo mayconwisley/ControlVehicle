@@ -1,4 +1,5 @@
-﻿using ControlVehicle.Domain.Entities;
+using ControlVehicle.Domain.Entities;
+using ControlVehicle.Domain.ValueObjects;
 using ControlVehicle.Models.Dtos;
 
 namespace ControlVehicle.Models.MappingDto;
@@ -18,11 +19,11 @@ public static class VehicleMapping
 		return new VehicleDto
 		(
 			vehicle.Id,
-			vehicle.Renavam,
+			vehicle.Renavam.Value,
 			vehicle.Model,
-			vehicle.LicensePlate,
+			vehicle.LicensePlate.Value,
 			vehicle.Fuel,
-			vehicle.Chassi,
+			vehicle.Chassi?.Value,
 			vehicle.VehicleColor,
 			vehicle.Active
 		);
@@ -31,10 +32,10 @@ public static class VehicleMapping
 	{
 		return new Vehicle
 		(
-			vehicleDto.LicensePlate,
+			LicensePlate.Create(vehicleDto.LicensePlate),
 			vehicleDto.Model,
-			vehicleDto.Renavam,
-			vehicleDto.Chassi,
+			Renavam.Create(vehicleDto.Renavam),
+			vehicleDto.Chassi is null ? null : Chassi.Create(vehicleDto.Chassi),
 			vehicleDto.Fuel,
 			vehicleDto.VehicleColor
 		);

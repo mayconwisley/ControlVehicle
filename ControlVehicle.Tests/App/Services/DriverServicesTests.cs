@@ -21,7 +21,7 @@ public class DriverServicesTests
 		var result = await service.GetByCnh("12345678901");
 
 		Assert.NotNull(result);
-		Assert.Equal(existing.Cnh.Number, result!.Cnh.Number);
+		Assert.Equal(existing.Cnh.Number, result!.Cnh);
 		Assert.Equal(0, uow.CommitCalls);
 	}
 
@@ -34,8 +34,8 @@ public class DriverServicesTests
 		var dto = new DriverDto(
 			Guid.NewGuid(),
 			"Ana",
-			Cnh.Create("98765432100"),
-			CategoryCnh.Create("A"),
+			"98765432100",
+			"A",
 			DateOnly.FromDateTime(DateTime.UtcNow.AddYears(1)),
 			true);
 

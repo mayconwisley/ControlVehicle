@@ -1,4 +1,4 @@
-﻿using ControlVehicle.Domain.ValueObjects;
+using ControlVehicle.Domain.ValueObjects;
 
 namespace ControlVehicle.Domain.Entities;
 
@@ -10,36 +10,41 @@ public class Driver
 	public CategoryCnh CategoryCnh { get; private set; } = null!;
 	public DateOnly DateExpiration { get; private set; }
 	public bool Active { get; private set; } = true;
+	public ICollection<VehicleControl> Controls { get; private set; } = new List<VehicleControl>();
 
-	protected Driver() { }
+	protected Driver() { } // EF Core
 
 	public Driver(string name, Cnh cnh, CategoryCnh categoryCnh, DateOnly dateExpiration)
 	{
-		Validation(name);
+		Validate(name, dateExpiration);
 
 		Id = Guid.NewGuid();
-		Name = name;
+		Name = name.Trim();
 		Cnh = cnh ?? throw new ArgumentNullException(nameof(cnh));
 		CategoryCnh = categoryCnh ?? throw new ArgumentNullException(nameof(categoryCnh));
 		DateExpiration = dateExpiration;
 		Active = true;
 	}
+
 	public void Activate() => Active = true;
 	public void Deactivate() => Active = false;
+
 	public void Update(string name, Cnh cnh, CategoryCnh categoryCnh, DateOnly dateExpiration)
 	{
-		Validation(name);
+		Validate(name, dateExpiration);
 
-		Name = name;
-		Cnh = cnh ?? throw new ArgumentNullException(nameof(cnh)); ;
+		Name = name.Trim();
+		Cnh = cnh ?? throw new ArgumentNullException(nameof(cnh));
 		CategoryCnh = categoryCnh ?? throw new ArgumentNullException(nameof(categoryCnh));
 		DateExpiration = dateExpiration;
 	}
 
-	private static void Validation(string name)
+	private static void Validate(string name, DateOnly dateExpiration)
 	{
 		if (string.IsNullOrWhiteSpace(name))
-			throw new ArgumentException("Name cannot be empty.", nameof(name));
+			throw new ArgumentException("O nome é obrigatório.", nameof(name));
 
+		if (dateExpiration == default)
+			throw new ArgumentException("A data de validade da CNH é obrigatória.", nameof(dateExpiration));
 	}
 }
