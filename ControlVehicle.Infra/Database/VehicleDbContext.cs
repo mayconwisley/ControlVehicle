@@ -10,6 +10,7 @@ public sealed class VehicleDbContext(DbContextOptions<VehicleDbContext> options)
     public DbSet<Driver> Drivers => Set<Driver>();
     public DbSet<VehicleControl> VehicleControls => Set<VehicleControl>();
     public DbSet<FuelControl> FuelControls => Set<FuelControl>();
+    public DbSet<TrafficFineControl> TrafficFineControls => Set<TrafficFineControl>();
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -19,3 +20,4 @@ public sealed class VehicleDbContext(DbContextOptions<VehicleDbContext> options)
         base.OnModelCreating(modelBuilder);
     }
 }
+

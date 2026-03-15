@@ -8,17 +8,19 @@ namespace ControlVehicle.Infra;
 
 public static class DependencyInjection
 {
-	public static IServiceCollection AddInfra(this IServiceCollection services, string connectionString)
-	{
-		services.AddDbContext<VehicleDbContext>(options =>
-			options.UseNpgsql(connectionString));
+    public static IServiceCollection AddInfra(this IServiceCollection services, string connectionString)
+    {
+        services.AddDbContext<VehicleDbContext>(options =>
+            options.UseNpgsql(connectionString));
 
-		services.AddScoped<IUnitOfWork, UnitOfWork>();
-		services.AddScoped<IDriverRepository, DriverRepository>();
-		services.AddScoped<IVehicleRepository, VehicleRepository>();
-		services.AddScoped<IVehicleControlRepository, VehicleControlRepository>();
-		services.AddScoped<IFuelControlRepository, FuelControlRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IDriverRepository, DriverRepository>();
+        services.AddScoped<IVehicleRepository, VehicleRepository>();
+        services.AddScoped<IVehicleControlRepository, VehicleControlRepository>();
+        services.AddScoped<IFuelControlRepository, FuelControlRepository>();
+        services.AddScoped<ITrafficFineControlRepository, TrafficFineControlRepository>();
 
-		return services;
-	}
+        return services;
+    }
 }
+
