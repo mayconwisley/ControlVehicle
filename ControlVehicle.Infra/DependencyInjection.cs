@@ -19,8 +19,10 @@ public static class DependencyInjection
         services.AddScoped<IVehicleControlRepository, VehicleControlRepository>();
         services.AddScoped<IFuelControlRepository, FuelControlRepository>();
         services.AddScoped<ITrafficFineControlRepository, TrafficFineControlRepository>();
+        services.AddScoped<IMaintenanceControlRepository, MaintenanceControlRepository>();
 
         return services;
     }
 }
+
 

@@ -3,6 +3,8 @@ using ControlVehicle.App.Services.Driver;
 using ControlVehicle.App.Services.Driver.Interface;
 using ControlVehicle.App.Services.FuelControl;
 using ControlVehicle.App.Services.FuelControl.Interface;
+using ControlVehicle.App.Services.MaintenanceControl;
+using ControlVehicle.App.Services.MaintenanceControl.Interface;
 using ControlVehicle.App.Services.TrafficFineControl;
 using ControlVehicle.App.Services.TrafficFineControl.Interface;
 using ControlVehicle.App.Services.Vehicle;
@@ -72,6 +74,7 @@ builder.Services.AddScoped<IVehicleServices, VehicleServices>();
 builder.Services.AddScoped<IVehicleControlServices, VehicleControlServices>();
 builder.Services.AddScoped<IFuelControlServices, FuelControlServices>();
 builder.Services.AddScoped<ITrafficFineControlServices, TrafficFineControlServices>();
+builder.Services.AddScoped<IMaintenanceControlServices, MaintenanceControlServices>();
 
 var app = builder.Build();
 
@@ -96,4 +99,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
 

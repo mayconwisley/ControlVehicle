@@ -16,6 +16,7 @@ public class Vehicle
     public ICollection<VehicleControl> Controls { get; private set; } = new List<VehicleControl>();
     public ICollection<FuelControl> FuelControls { get; private set; } = new List<FuelControl>();
     public ICollection<TrafficFineControl> TrafficFineControls { get; private set; } = new List<TrafficFineControl>();
+    public ICollection<MaintenanceControl> MaintenanceControls { get; private set; } = new List<MaintenanceControl>();
 
     protected Vehicle() { } // EF Core
 
@@ -72,4 +73,5 @@ public class Vehicle
             throw new ArgumentException("A cor do veículo é obrigatória.", nameof(vehicleColor));
     }
 }
+
 
