@@ -1,6 +1,8 @@
 using Asp.Versioning;
 using ControlVehicle.App.Services.Driver;
 using ControlVehicle.App.Services.Driver.Interface;
+using ControlVehicle.App.Services.FuelControl;
+using ControlVehicle.App.Services.FuelControl.Interface;
 using ControlVehicle.App.Services.Vehicle;
 using ControlVehicle.App.Services.Vehicle.Interface;
 using ControlVehicle.App.Services.VehicleControl;
@@ -66,6 +68,7 @@ builder.Services.AddInfra(csb.ConnectionString);
 builder.Services.AddScoped<IDriverServices, DriverServices>();
 builder.Services.AddScoped<IVehicleServices, VehicleServices>();
 builder.Services.AddScoped<IVehicleControlServices, VehicleControlServices>();
+builder.Services.AddScoped<IFuelControlServices, FuelControlServices>();
 
 var app = builder.Build();
 

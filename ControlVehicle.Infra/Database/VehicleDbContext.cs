@@ -6,16 +6,16 @@ namespace ControlVehicle.Infra.Database;
 
 public sealed class VehicleDbContext(DbContextOptions<VehicleDbContext> options) : DbContext(options)
 {
-	public DbSet<Vehicle> Vehicles => Set<Vehicle>();
-	public DbSet<Driver> Drivers => Set<Driver>();
-	public DbSet<VehicleControl> VehicleControls => Set<VehicleControl>();
+    public DbSet<Vehicle> Vehicles => Set<Vehicle>();
+    public DbSet<Driver> Drivers => Set<Driver>();
+    public DbSet<VehicleControl> VehicleControls => Set<VehicleControl>();
+    public DbSet<FuelControl> FuelControls => Set<FuelControl>();
 
 
-	protected override void OnModelCreating(ModelBuilder modelBuilder)
-	{
-		modelBuilder.HasDefaultSchema("control_vehicle");
-		modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-		base.OnModelCreating(modelBuilder);
-	}
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.HasDefaultSchema("control_vehicle");
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        base.OnModelCreating(modelBuilder);
+    }
 }
-

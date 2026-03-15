@@ -11,6 +11,7 @@ public class Driver
 	public DateOnly DateExpiration { get; private set; }
 	public bool Active { get; private set; } = true;
 	public ICollection<VehicleControl> Controls { get; private set; } = new List<VehicleControl>();
+	public ICollection<FuelControl> FuelControls { get; private set; } = new List<FuelControl>();
 
 	protected Driver() { } // EF Core
 

@@ -14,6 +14,7 @@ public class Vehicle
 	public VehicleColorEnum VehicleColor { get; private set; }
 	public bool Active { get; private set; } = true;
 	public ICollection<VehicleControl> Controls { get; private set; } = new List<VehicleControl>();
+	public ICollection<FuelControl> FuelControls { get; private set; } = new List<FuelControl>();
 
 	protected Vehicle() { } // EF Core
 
