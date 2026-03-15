@@ -36,10 +36,15 @@ public sealed class DriverRepository(VehicleDbContext db) : IDriverRepository
 		if (!string.IsNullOrWhiteSpace(search))
 		{
 			var pattern = $"%{search.Trim()}%";
-			query = query.Where(w =>
-				EF.Functions.ILike(w.Cnh.Number, pattern) ||
-				EF.Functions.ILike(w.Name, pattern) ||
-				EF.Functions.ILike(w.CategoryCnh.Value, pattern));
+			query = _db.Drivers
+				.FromSqlInterpolated($@"
+					SELECT *
+					FROM control_vehicle.drivers d
+					WHERE d.""Cnh"" ILIKE {pattern}
+					   OR d.""Name"" ILIKE {pattern}
+					   OR d.""CategoryCnh"" ILIKE {pattern}
+					   OR CAST(d.""Id"" AS text) ILIKE {pattern}")
+				.AsNoTracking();
 		}
 
 		var total = await query.CountAsync(ct);

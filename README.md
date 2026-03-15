@@ -342,3 +342,20 @@ ControlVehicle/
 ---
 
 Projeto licenciado sob [MIT](LICENSE.txt).
+
+## Frontend (React + MUI)
+
+Foi adicionado o projeto `ControlVehicle.Frontend` com:
+- React + TypeScript (Vite)
+- MUI com layout responsivo
+- Dark mode com persistência em `localStorage`
+- Telas de listagem por recurso consumindo a API `/api/v1`
+
+Execução:
+
+```powershell
+cd .\ControlVehicle.Frontend
+copy .env.example .env
+npm install
+npm run dev
+```

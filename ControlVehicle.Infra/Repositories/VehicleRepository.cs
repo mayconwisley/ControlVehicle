@@ -21,11 +21,16 @@ public sealed class VehicleRepository(VehicleDbContext db) : IVehicleRepository
 		if (!string.IsNullOrWhiteSpace(search))
 		{
 			var pattern = $"%{search.Trim()}%";
-			query = query.Where(v =>
-				EF.Functions.ILike(v.Model, pattern) ||
-				EF.Functions.ILike(v.LicensePlate.Value, pattern) ||
-				EF.Functions.ILike(v.Renavam.Value, pattern) ||
-				(v.Chassi != null && EF.Functions.ILike(v.Chassi.Value, pattern)));
+			query = _db.Vehicles
+				.FromSqlInterpolated($@"
+					SELECT *
+					FROM control_vehicle.vehicles v
+					WHERE v.""Model"" ILIKE {pattern}
+					   OR v.""LicensePlate"" ILIKE {pattern}
+					   OR v.""Renavam"" ILIKE {pattern}
+					   OR COALESCE(v.""Chassi"", '') ILIKE {pattern}
+					   OR CAST(v.""Id"" AS text) ILIKE {pattern}")
+				.AsNoTracking();
 		}
 
 		var total = await query.CountAsync(ct);
