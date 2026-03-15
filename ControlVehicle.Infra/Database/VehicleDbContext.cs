@@ -13,7 +13,6 @@ public sealed class VehicleDbContext(DbContextOptions<VehicleDbContext> options)
     public DbSet<TrafficFineControl> TrafficFineControls => Set<TrafficFineControl>();
     public DbSet<MaintenanceControl> MaintenanceControls => Set<MaintenanceControl>();
 
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("control_vehicle");

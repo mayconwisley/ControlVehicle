@@ -22,20 +22,20 @@ public class TrafficFineControlServices(ITrafficFineControlRepository controlRep
         return control?.ConvertTrafficFineControlToDto();
     }
 
-    public async Task<Guid> Create(TrafficFineControlDto control)
+    public async Task<TrafficFineControlDto> Create(TrafficFineControlCreateDto control)
     {
-        var controlEntity = control.ConvertDtoToTrafficFineControl();
+        var controlEntity = control.ConvertCreateDtoToTrafficFineControl();
         await _controlRepository.Create(controlEntity);
         await _unitOfWork.CommitAsync();
-        return controlEntity.Id;
+        return controlEntity.ConvertTrafficFineControlToDto();
     }
 
-    public async Task Update(TrafficFineControlDto control)
+    public async Task<TrafficFineControlDto?> Update(TrafficFineControlUpdateDto control)
     {
         var controlEntity = await _controlRepository.GetById(control.Id);
         if (controlEntity is null)
         {
-            return;
+            return null;
         }
 
         controlEntity.Update(
@@ -48,6 +48,8 @@ public class TrafficFineControlServices(ITrafficFineControlRepository controlRep
 
         _controlRepository.Update(controlEntity);
         await _unitOfWork.CommitAsync();
+
+        return controlEntity.ConvertTrafficFineControlToDto();
     }
 
     public async Task Delete(Guid id)

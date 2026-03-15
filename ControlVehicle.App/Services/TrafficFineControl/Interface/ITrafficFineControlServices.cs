@@ -6,8 +6,8 @@ public interface ITrafficFineControlServices
 {
     Task<IEnumerable<TrafficFineControlDto>> GetAll(int page, int size, string search);
     Task<TrafficFineControlDto?> GetById(Guid id);
-    Task<Guid> Create(TrafficFineControlDto control);
-    Task Update(TrafficFineControlDto control);
+    Task<TrafficFineControlDto> Create(TrafficFineControlCreateDto control);
+    Task<TrafficFineControlDto?> Update(TrafficFineControlUpdateDto control);
     Task Delete(Guid id);
     Task<int> TotalTrafficFineControl();
 }

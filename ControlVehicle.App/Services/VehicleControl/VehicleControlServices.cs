@@ -22,20 +22,20 @@ public class VehicleControlServices(IVehicleControlRepository controlRepository,
 		return control?.ConvertVehicleControlToDto();
 	}
 
-	public async Task<Guid> Create(VehicleControlDto control)
+	public async Task<VehicleControlDto> Create(VehicleControlCreateDto control)
 	{
-		var controlEntity = control.ConvertDtoToVehicleControl();
+		var controlEntity = control.ConvertCreateDtoToVehicleControl();
 		await _controlRepository.Create(controlEntity);
 		await _unitOfWork.CommitAsync();
-		return controlEntity.Id;
+		return controlEntity.ConvertVehicleControlToDto();
 	}
 
-	public async Task Update(VehicleControlDto control)
+	public async Task<VehicleControlDto?> Update(VehicleControlUpdateDto control)
 	{
 		var controlEntity = await _controlRepository.GetById(control.Id);
 		if (controlEntity is null)
 		{
-			return;
+			return null;
 		}
 
 		controlEntity.Update(
@@ -49,6 +49,8 @@ public class VehicleControlServices(IVehicleControlRepository controlRepository,
 
 		_controlRepository.Update(controlEntity);
 		await _unitOfWork.CommitAsync();
+
+		return controlEntity.ConvertVehicleControlToDto();
 	}
 
 	public async Task Delete(Guid id)

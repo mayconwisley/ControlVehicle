@@ -10,9 +10,9 @@ public static class DriverMapping
 	{
 		return drivers.Select(s => s.ConvertDriverToDto());
 	}
-	public static IEnumerable<Driver> ConvertDtosToDrivers(this IEnumerable<DriverDto> driversDto)
+	public static IEnumerable<Driver> ConvertDtosToDrivers(this IEnumerable<DriverCreateDto> driversDto)
 	{
-		return driversDto.Select(s => s.ConvertDtoToDriver());
+		return driversDto.Select(s => s.ConvertCreateDtoToDriver());
 	}
 	public static DriverDto ConvertDriverToDto(this Driver driver)
 	{
@@ -26,14 +26,21 @@ public static class DriverMapping
 			driver.Active
 		);
 	}
-	public static Driver ConvertDtoToDriver(this DriverDto driverDto)
+	public static Driver ConvertCreateDtoToDriver(this DriverCreateDto driverDto)
 	{
-		return new Driver
+		var driver = new Driver
 		(
 			driverDto.Name,
 			Cnh.Create(driverDto.Cnh),
 			CategoryCnh.Create(driverDto.CategoryCnh),
 			driverDto.DateExpiration
 		);
+
+		if (!driverDto.Active)
+		{
+			driver.Deactivate();
+		}
+
+		return driver;
 	}
 }

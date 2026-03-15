@@ -59,29 +59,35 @@ public class FuelControlController(IFuelControlServices controlServices) : Contr
 	[HttpPost]
 	[ProducesResponseType(StatusCodes.Status201Created)]
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
-	public async Task<ActionResult<FuelControlDto>> Post([FromBody] FuelControlDto control)
+	public async Task<ActionResult<FuelControlDto>> Post([FromBody] FuelControlCreateDto control)
 	{
 		if (control is null)
 		{
 			return BadRequest();
 		}
 
-		var id = await _controlServices.Create(control);
-		return new CreatedAtRouteResult("GetFuelControlV1", new { version = "1", id }, control with { Id = id });
+		var createdControl = await _controlServices.Create(control);
+		return new CreatedAtRouteResult("GetFuelControlV1", new { version = "1", id = createdControl.Id }, createdControl);
 	}
 
 	[HttpPut("{id:Guid}")]
 	[ProducesResponseType(StatusCodes.Status200OK)]
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
-	public async Task<ActionResult<FuelControlDto>> Put(Guid id, [FromBody] FuelControlDto control)
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<ActionResult<FuelControlDto>> Put(Guid id, [FromBody] FuelControlUpdateDto control)
 	{
 		if (control is null || id != control.Id)
 		{
 			return BadRequest();
 		}
 
-		await _controlServices.Update(control);
-		return Ok(control);
+		var updatedControl = await _controlServices.Update(control);
+		if (updatedControl is null)
+		{
+			return NotFound();
+		}
+
+		return Ok(updatedControl);
 	}
 
 	[HttpDelete("{id:Guid}")]

@@ -59,29 +59,35 @@ public class VehicleControlController(IVehicleControlServices controlServices) :
 	[HttpPost]
 	[ProducesResponseType(StatusCodes.Status201Created)]
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
-	public async Task<ActionResult<VehicleControlDto>> Post([FromBody] VehicleControlDto control)
+	public async Task<ActionResult<VehicleControlDto>> Post([FromBody] VehicleControlCreateDto control)
 	{
 		if (control is null)
 		{
 			return BadRequest();
 		}
 
-		var id = await _controlServices.Create(control);
-		return new CreatedAtRouteResult("GetVehicleControlV1", new { version = "1", id }, control with { Id = id });
+		var createdControl = await _controlServices.Create(control);
+		return new CreatedAtRouteResult("GetVehicleControlV1", new { version = "1", id = createdControl.Id }, createdControl);
 	}
 
 	[HttpPut("{id:Guid}")]
 	[ProducesResponseType(StatusCodes.Status200OK)]
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
-	public async Task<ActionResult<VehicleControlDto>> Put(Guid id, [FromBody] VehicleControlDto control)
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<ActionResult<VehicleControlDto>> Put(Guid id, [FromBody] VehicleControlUpdateDto control)
 	{
 		if (control is null || id != control.Id)
 		{
 			return BadRequest();
 		}
 
-		await _controlServices.Update(control);
-		return Ok(control);
+		var updatedControl = await _controlServices.Update(control);
+		if (updatedControl is null)
+		{
+			return NotFound();
+		}
+
+		return Ok(updatedControl);
 	}
 
 	[HttpDelete("{id:Guid}")]

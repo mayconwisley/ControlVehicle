@@ -10,9 +10,9 @@ public static class TrafficFineControlMapping
         return controls.Select(s => s.ConvertTrafficFineControlToDto());
     }
 
-    public static IEnumerable<TrafficFineControl> ConvertDtosToTrafficFineControls(this IEnumerable<TrafficFineControlDto> controlDtos)
+    public static IEnumerable<TrafficFineControl> ConvertDtosToTrafficFineControls(this IEnumerable<TrafficFineControlCreateDto> controlDtos)
     {
-        return controlDtos.Select(s => s.ConvertDtoToTrafficFineControl());
+        return controlDtos.Select(s => s.ConvertCreateDtoToTrafficFineControl());
     }
 
     public static TrafficFineControlDto ConvertTrafficFineControlToDto(this TrafficFineControl control)
@@ -29,7 +29,7 @@ public static class TrafficFineControlMapping
         );
     }
 
-    public static TrafficFineControl ConvertDtoToTrafficFineControl(this TrafficFineControlDto controlDto)
+    public static TrafficFineControl ConvertCreateDtoToTrafficFineControl(this TrafficFineControlCreateDto controlDto)
     {
         return new TrafficFineControl
         (

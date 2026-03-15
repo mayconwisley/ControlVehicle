@@ -55,33 +55,39 @@ public class TrafficFineControlController(ITrafficFineControlServices controlSer
         return Ok(control);
     }
 
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<TrafficFineControlDto>> Post([FromBody] TrafficFineControlDto control)
-    {
-        if (control is null)
-        {
-            return BadRequest();
-        }
+	[HttpPost]
+	[ProducesResponseType(StatusCodes.Status201Created)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
+	public async Task<ActionResult<TrafficFineControlDto>> Post([FromBody] TrafficFineControlCreateDto control)
+	{
+		if (control is null)
+		{
+			return BadRequest();
+		}
 
-        var id = await _controlServices.Create(control);
-        return new CreatedAtRouteResult("GetTrafficFineControlV1", new { version = "1", id }, control with { Id = id });
-    }
+		var createdControl = await _controlServices.Create(control);
+		return new CreatedAtRouteResult("GetTrafficFineControlV1", new { version = "1", id = createdControl.Id }, createdControl);
+	}
 
-    [HttpPut("{id:Guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<TrafficFineControlDto>> Put(Guid id, [FromBody] TrafficFineControlDto control)
-    {
-        if (control is null || id != control.Id)
-        {
-            return BadRequest();
-        }
+	[HttpPut("{id:Guid}")]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<ActionResult<TrafficFineControlDto>> Put(Guid id, [FromBody] TrafficFineControlUpdateDto control)
+	{
+		if (control is null || id != control.Id)
+		{
+			return BadRequest();
+		}
 
-        await _controlServices.Update(control);
-        return Ok(control);
-    }
+		var updatedControl = await _controlServices.Update(control);
+		if (updatedControl is null)
+		{
+			return NotFound();
+		}
+
+		return Ok(updatedControl);
+	}
 
     [HttpDelete("{id:Guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]

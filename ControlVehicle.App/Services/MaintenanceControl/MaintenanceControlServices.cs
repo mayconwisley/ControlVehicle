@@ -22,20 +22,20 @@ public class MaintenanceControlServices(IMaintenanceControlRepository controlRep
         return control?.ConvertMaintenanceControlToDto();
     }
 
-    public async Task<Guid> Create(MaintenanceControlDto control)
+    public async Task<MaintenanceControlDto> Create(MaintenanceControlCreateDto control)
     {
-        var controlEntity = control.ConvertDtoToMaintenanceControl();
+        var controlEntity = control.ConvertCreateDtoToMaintenanceControl();
         await _controlRepository.Create(controlEntity);
         await _unitOfWork.CommitAsync();
-        return controlEntity.Id;
+        return controlEntity.ConvertMaintenanceControlToDto();
     }
 
-    public async Task Update(MaintenanceControlDto control)
+    public async Task<MaintenanceControlDto?> Update(MaintenanceControlUpdateDto control)
     {
         var controlEntity = await _controlRepository.GetById(control.Id);
         if (controlEntity is null)
         {
-            return;
+            return null;
         }
 
         controlEntity.Update(
@@ -46,6 +46,8 @@ public class MaintenanceControlServices(IMaintenanceControlRepository controlRep
 
         _controlRepository.Update(controlEntity);
         await _unitOfWork.CommitAsync();
+
+        return controlEntity.ConvertMaintenanceControlToDto();
     }
 
     public async Task Delete(Guid id)

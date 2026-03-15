@@ -72,29 +72,35 @@ public class VehicleController(IVehicleServices vehicleServices) : ControllerBas
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<VehicleDto>> Post([FromBody] VehicleDto vehicle)
+    public async Task<ActionResult<VehicleDto>> Post([FromBody] VehicleCreateDto vehicle)
     {
         if (vehicle is null)
         {
             return BadRequest();
         }
 
-        await _vehicleServices.Create(vehicle);
-        return new CreatedAtRouteResult("GetVehicleV1", new { version = "1", plate = vehicle.LicensePlate }, vehicle);
+        var createdVehicle = await _vehicleServices.Create(vehicle);
+        return new CreatedAtRouteResult("GetVehicleV1", new { version = "1", plate = createdVehicle.LicensePlate }, createdVehicle);
     }
 
     [HttpPut("{id:Guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<VehicleDto>> Put(Guid id, [FromBody] VehicleDto vehicle)
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<VehicleDto>> Put(Guid id, [FromBody] VehicleUpdateDto vehicle)
     {
         if (vehicle is null || id != vehicle.Id)
         {
             return BadRequest();
         }
 
-        await _vehicleServices.Update(vehicle);
-        return Ok(vehicle);
+        var updatedVehicle = await _vehicleServices.Update(vehicle);
+        if (updatedVehicle is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(updatedVehicle);
     }
 
     [HttpDelete("{renavam}")]

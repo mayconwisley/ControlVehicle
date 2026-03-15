@@ -22,20 +22,20 @@ public class FuelControlServices(IFuelControlRepository controlRepository, IUnit
 		return control?.ConvertFuelControlToDto();
 	}
 
-	public async Task<Guid> Create(FuelControlDto control)
+	public async Task<FuelControlDto> Create(FuelControlCreateDto control)
 	{
-		var controlEntity = control.ConvertDtoToFuelControl();
+		var controlEntity = control.ConvertCreateDtoToFuelControl();
 		await _controlRepository.Create(controlEntity);
 		await _unitOfWork.CommitAsync();
-		return controlEntity.Id;
+		return controlEntity.ConvertFuelControlToDto();
 	}
 
-	public async Task Update(FuelControlDto control)
+	public async Task<FuelControlDto?> Update(FuelControlUpdateDto control)
 	{
 		var controlEntity = await _controlRepository.GetById(control.Id);
 		if (controlEntity is null)
 		{
-			return;
+			return null;
 		}
 
 		controlEntity.Update(
@@ -49,6 +49,8 @@ public class FuelControlServices(IFuelControlRepository controlRepository, IUnit
 
 		_controlRepository.Update(controlEntity);
 		await _unitOfWork.CommitAsync();
+
+		return controlEntity.ConvertFuelControlToDto();
 	}
 
 	public async Task Delete(Guid id)

@@ -41,8 +41,7 @@ public class FuelControlServicesTests
         var repo = new FakeFuelControlRepository();
         var uow = new FakeUnitOfWork();
         var service = new FuelControlServices(repo, uow);
-        var dto = new FuelControlDto(
-            Guid.Empty,
+        var dto = new FuelControlCreateDto(
             Guid.NewGuid(),
             Guid.NewGuid(),
             5000m,
@@ -51,12 +50,75 @@ public class FuelControlServicesTests
             60.5m,
             null);
 
-        var id = await service.Create(dto);
+        var created = await service.Create(dto);
         var all = await repo.GetAll(1, 10, string.Empty);
 
         Assert.Single(all.Items);
-        Assert.Equal(id, all.Items[0].Id);
+        Assert.Equal(created.Id, all.Items[0].Id);
         Assert.Equal(1, uow.CommitCalls);
+    }
+
+    [Fact]
+    public async Task Update_ShouldChangeValues_AndCommit_WhenControlExists()
+    {
+        var repo = new FakeFuelControlRepository();
+        var uow = new FakeUnitOfWork();
+        var service = new FuelControlServices(repo, uow);
+        var existing = new FuelControl(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            1200.5m,
+            450.75m,
+            DateTime.UtcNow.AddDays(-1),
+            45.2m,
+            "Abastecimento");
+        await repo.Create(existing);
+
+        var updated = new FuelControlUpdateDto(
+            existing.Id,
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            2000.1m,
+            800.00m,
+            DateTime.UtcNow,
+            55.5m,
+            "Completo");
+
+        var updatedResult = await service.Update(updated);
+        var stored = await repo.GetById(existing.Id);
+
+        Assert.NotNull(updatedResult);
+        Assert.NotNull(stored);
+        Assert.Equal(updated.VehicleId, stored!.VehicleId);
+        Assert.Equal(updated.DriverId, stored.DriverId);
+        Assert.Equal(updated.InitialKm, stored.InitialKm);
+        Assert.Equal(updated.Value, stored.Value);
+        Assert.Equal(updated.Date, stored.Date);
+        Assert.Equal(updated.Liters, stored.Liters);
+        Assert.Equal(updated.Description, stored.Description);
+        Assert.Equal(1, uow.CommitCalls);
+    }
+
+    [Fact]
+    public async Task Update_ShouldNotCommit_WhenControlDoesNotExist()
+    {
+        var repo = new FakeFuelControlRepository();
+        var uow = new FakeUnitOfWork();
+        var service = new FuelControlServices(repo, uow);
+        var updated = new FuelControlUpdateDto(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            2000.1m,
+            800.00m,
+            DateTime.UtcNow,
+            55.5m,
+            "Completo");
+
+        var updatedResult = await service.Update(updated);
+
+        Assert.Null(updatedResult);
+        Assert.Equal(0, uow.CommitCalls);
     }
 
     private sealed class FakeUnitOfWork : IUnitOfWork

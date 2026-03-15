@@ -10,9 +10,9 @@ public static class MaintenanceControlMapping
         return controls.Select(s => s.ConvertMaintenanceControlToDto());
     }
 
-    public static IEnumerable<MaintenanceControl> ConvertDtosToMaintenanceControls(this IEnumerable<MaintenanceControlDto> controlDtos)
+    public static IEnumerable<MaintenanceControl> ConvertDtosToMaintenanceControls(this IEnumerable<MaintenanceControlCreateDto> controlDtos)
     {
-        return controlDtos.Select(s => s.ConvertDtoToMaintenanceControl());
+        return controlDtos.Select(s => s.ConvertCreateDtoToMaintenanceControl());
     }
 
     public static MaintenanceControlDto ConvertMaintenanceControlToDto(this MaintenanceControl control)
@@ -27,7 +27,7 @@ public static class MaintenanceControlMapping
         );
     }
 
-    public static MaintenanceControl ConvertDtoToMaintenanceControl(this MaintenanceControlDto controlDto)
+    public static MaintenanceControl ConvertCreateDtoToMaintenanceControl(this MaintenanceControlCreateDto controlDto)
     {
         return new MaintenanceControl
         (

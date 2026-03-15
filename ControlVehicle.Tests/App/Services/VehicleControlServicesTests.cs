@@ -41,8 +41,7 @@ public class VehicleControlServicesTests
         var repo = new FakeVehicleControlRepository();
         var uow = new FakeUnitOfWork();
         var service = new VehicleControlServices(repo, uow);
-        var dto = new VehicleControlDto(
-            Guid.Empty,
+        var dto = new VehicleControlCreateDto(
             Guid.NewGuid(),
             Guid.NewGuid(),
             DateTime.UtcNow.AddHours(-3),
@@ -51,12 +50,75 @@ public class VehicleControlServicesTests
             5075.2m,
             "Visita técnica");
 
-        var id = await service.Create(dto);
+        var created = await service.Create(dto);
         var all = await repo.GetAll(1, 10, string.Empty);
 
         Assert.Single(all.Items);
-        Assert.Equal(id, all.Items[0].Id);
+        Assert.Equal(created.Id, all.Items[0].Id);
         Assert.Equal(1, uow.CommitCalls);
+    }
+
+    [Fact]
+    public async Task Update_ShouldChangeValues_AndCommit_WhenControlExists()
+    {
+        var repo = new FakeVehicleControlRepository();
+        var uow = new FakeUnitOfWork();
+        var service = new VehicleControlServices(repo, uow);
+        var existing = new VehicleControl(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            DateTime.UtcNow.AddHours(-4),
+            DateTime.UtcNow.AddHours(-2),
+            1200.5m,
+            1210.8m,
+            "Entrega de peças");
+        await repo.Create(existing);
+
+        var updated = new VehicleControlUpdateDto(
+            existing.Id,
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            DateTime.UtcNow.AddHours(-1),
+            DateTime.UtcNow,
+            2000m,
+            2050m,
+            "Retorno");
+
+        var updatedResult = await service.Update(updated);
+        var stored = await repo.GetById(existing.Id);
+
+        Assert.NotNull(updatedResult);
+        Assert.NotNull(stored);
+        Assert.Equal(updated.VehicleId, stored!.VehicleId);
+        Assert.Equal(updated.DriverId, stored.DriverId);
+        Assert.Equal(updated.DepartureDate, stored.DepartureDate);
+        Assert.Equal(updated.ArrivalDate, stored.ArrivalDate);
+        Assert.Equal(updated.InitialKm, stored.InitialKm);
+        Assert.Equal(updated.FinalKm, stored.FinalKm);
+        Assert.Equal(updated.Description, stored.Description);
+        Assert.Equal(1, uow.CommitCalls);
+    }
+
+    [Fact]
+    public async Task Update_ShouldNotCommit_WhenControlDoesNotExist()
+    {
+        var repo = new FakeVehicleControlRepository();
+        var uow = new FakeUnitOfWork();
+        var service = new VehicleControlServices(repo, uow);
+        var updated = new VehicleControlUpdateDto(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            DateTime.UtcNow.AddHours(-1),
+            DateTime.UtcNow,
+            2000m,
+            2050m,
+            "Retorno");
+
+        var updatedResult = await service.Update(updated);
+
+        Assert.Null(updatedResult);
+        Assert.Equal(0, uow.CommitCalls);
     }
 
     private sealed class FakeUnitOfWork : IUnitOfWork

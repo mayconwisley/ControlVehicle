@@ -31,19 +31,19 @@ public class DriverServicesTests
         var repo = new FakeDriverRepository();
         var uow = new FakeUnitOfWork();
         var service = new DriverServices(repo, uow);
-        var dto = new DriverDto(
-            Guid.NewGuid(),
+        var dto = new DriverCreateDto(
             "Ana",
             "98765432100",
             "A",
             DateOnly.FromDateTime(DateTime.UtcNow.AddYears(1)),
             true);
 
-        await service.Create(dto);
+        var created = await service.Create(dto);
         var all = await repo.GetAll(1, 10, string.Empty);
 
         Assert.Single(all.Items);
         Assert.Equal("Ana", all.Items[0].Name);
+        Assert.Equal(created.Id, all.Items[0].Id);
         Assert.Equal(1, uow.CommitCalls);
     }
 

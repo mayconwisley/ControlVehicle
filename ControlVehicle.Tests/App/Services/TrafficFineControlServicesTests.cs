@@ -40,8 +40,7 @@ public class TrafficFineControlServicesTests
         var repo = new FakeTrafficFineControlRepository();
         var uow = new FakeUnitOfWork();
         var service = new TrafficFineControlServices(repo, uow);
-        var dto = new TrafficFineControlDto(
-            Guid.Empty,
+        var dto = new TrafficFineControlCreateDto(
             Guid.NewGuid(),
             Guid.NewGuid(),
             4,
@@ -49,11 +48,11 @@ public class TrafficFineControlServicesTests
             DateTime.UtcNow,
             null);
 
-        var id = await service.Create(dto);
+        var created = await service.Create(dto);
         var all = await repo.GetAll(1, 10, string.Empty);
 
         Assert.Single(all.Items);
-        Assert.Equal(id, all.Items[0].Id);
+        Assert.Equal(created.Id, all.Items[0].Id);
         Assert.Equal(1, uow.CommitCalls);
     }
 
@@ -72,7 +71,7 @@ public class TrafficFineControlServicesTests
             "Velocidade");
         await repo.Create(existing);
 
-        var updated = new TrafficFineControlDto(
+        var updated = new TrafficFineControlUpdateDto(
             existing.Id,
             Guid.NewGuid(),
             Guid.NewGuid(),
@@ -81,9 +80,10 @@ public class TrafficFineControlServicesTests
             DateTime.UtcNow,
             "Mudanca de faixa");
 
-        await service.Update(updated);
+        var updatedResult = await service.Update(updated);
         var stored = await repo.GetById(existing.Id);
 
+        Assert.NotNull(updatedResult);
         Assert.NotNull(stored);
         Assert.Equal(updated.VehicleId, stored!.VehicleId);
         Assert.Equal(updated.DriverId, stored.DriverId);
@@ -100,7 +100,7 @@ public class TrafficFineControlServicesTests
         var repo = new FakeTrafficFineControlRepository();
         var uow = new FakeUnitOfWork();
         var service = new TrafficFineControlServices(repo, uow);
-        var updated = new TrafficFineControlDto(
+        var updated = new TrafficFineControlUpdateDto(
             Guid.NewGuid(),
             Guid.NewGuid(),
             Guid.NewGuid(),
@@ -109,8 +109,9 @@ public class TrafficFineControlServicesTests
             DateTime.UtcNow,
             null);
 
-        await service.Update(updated);
+        var updatedResult = await service.Update(updated);
 
+        Assert.Null(updatedResult);
         Assert.Equal(0, uow.CommitCalls);
     }
 

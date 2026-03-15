@@ -10,9 +10,9 @@ public static class VehicleControlMapping
         return controls.Select(s => s.ConvertVehicleControlToDto());
     }
 
-    public static IEnumerable<VehicleControl> ConvertDtosToVehicleControls(this IEnumerable<VehicleControlDto> controlDtos)
+    public static IEnumerable<VehicleControl> ConvertDtosToVehicleControls(this IEnumerable<VehicleControlCreateDto> controlDtos)
     {
-        return controlDtos.Select(s => s.ConvertDtoToVehicleControl());
+        return controlDtos.Select(s => s.ConvertCreateDtoToVehicleControl());
     }
 
     public static VehicleControlDto ConvertVehicleControlToDto(this VehicleControl control)
@@ -30,7 +30,7 @@ public static class VehicleControlMapping
         );
     }
 
-    public static VehicleControl ConvertDtoToVehicleControl(this VehicleControlDto controlDto)
+    public static VehicleControl ConvertCreateDtoToVehicleControl(this VehicleControlCreateDto controlDto)
     {
         return new VehicleControl
         (

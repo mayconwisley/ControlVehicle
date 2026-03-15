@@ -6,8 +6,8 @@ public interface IVehicleControlServices
 {
 	Task<IEnumerable<VehicleControlDto>> GetAll(int page, int size, string search);
 	Task<VehicleControlDto?> GetById(Guid id);
-	Task<Guid> Create(VehicleControlDto control);
-	Task Update(VehicleControlDto control);
+	Task<VehicleControlDto> Create(VehicleControlCreateDto control);
+	Task<VehicleControlDto?> Update(VehicleControlUpdateDto control);
 	Task Delete(Guid id);
 	Task<int> TotalVehicleControl();
 }

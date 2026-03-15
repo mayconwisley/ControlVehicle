@@ -31,26 +31,22 @@ public class VehicleServices(IVehicleRepository vehicleRepository, IUnitOfWork u
 		return vehicle?.ConvertVehicleToDto();
 	}
 
-	public async Task Create(VehicleDto vehicle)
+	public async Task<VehicleDto> Create(VehicleCreateDto vehicle)
 	{
-		var vehicleEntity = new ControlVehicle.Domain.Entities.Vehicle(
-			LicensePlate.Create(vehicle.LicensePlate),
-			vehicle.Model,
-			Renavam.Create(vehicle.Renavam),
-			vehicle.Chassi is null ? null : Chassi.Create(vehicle.Chassi),
-			vehicle.Fuel,
-			vehicle.VehicleColor);
+		var vehicleEntity = vehicle.ConvertCreateDtoToVehicle();
 
 		await _vehicleRepository.Create(vehicleEntity);
 		await _unitOfWork.CommitAsync();
+
+		return vehicleEntity.ConvertVehicleToDto();
 	}
 
-	public async Task Update(VehicleDto vehicle)
+	public async Task<VehicleDto?> Update(VehicleUpdateDto vehicle)
 	{
 		var vehicleEntity = await _vehicleRepository.GetById(vehicle.Id);
 		if (vehicleEntity is null)
 		{
-			return;
+			return null;
 		}
 
 		vehicleEntity.Update(
@@ -61,8 +57,19 @@ public class VehicleServices(IVehicleRepository vehicleRepository, IUnitOfWork u
 			vehicle.Fuel,
 			vehicle.VehicleColor);
 
+		if (vehicle.Active)
+		{
+			vehicleEntity.Activate();
+		}
+		else
+		{
+			vehicleEntity.Deactivate();
+		}
+
 		_vehicleRepository.Update(vehicleEntity);
 		await _unitOfWork.CommitAsync();
+
+		return vehicleEntity.ConvertVehicleToDto();
 	}
 
 	public async Task Delete(string renavam)

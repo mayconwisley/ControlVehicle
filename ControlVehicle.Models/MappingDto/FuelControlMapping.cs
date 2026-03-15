@@ -10,9 +10,9 @@ public static class FuelControlMapping
         return controls.Select(s => s.ConvertFuelControlToDto());
     }
 
-    public static IEnumerable<FuelControl> ConvertDtosToFuelControls(this IEnumerable<FuelControlDto> controlDtos)
+    public static IEnumerable<FuelControl> ConvertDtosToFuelControls(this IEnumerable<FuelControlCreateDto> controlDtos)
     {
-        return controlDtos.Select(s => s.ConvertDtoToFuelControl());
+        return controlDtos.Select(s => s.ConvertCreateDtoToFuelControl());
     }
 
     public static FuelControlDto ConvertFuelControlToDto(this FuelControl control)
@@ -30,7 +30,7 @@ public static class FuelControlMapping
         );
     }
 
-    public static FuelControl ConvertDtoToFuelControl(this FuelControlDto controlDto)
+    public static FuelControl ConvertCreateDtoToFuelControl(this FuelControlCreateDto controlDto)
     {
         return new FuelControl
         (

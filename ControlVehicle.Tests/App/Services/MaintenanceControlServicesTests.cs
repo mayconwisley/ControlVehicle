@@ -36,19 +36,69 @@ public class MaintenanceControlServicesTests
         var repo = new FakeMaintenanceControlRepository();
         var uow = new FakeUnitOfWork();
         var service = new MaintenanceControlServices(repo, uow);
-        var dto = new MaintenanceControlDto(
-            Guid.Empty,
+        var dto = new MaintenanceControlCreateDto(
             Guid.NewGuid(),
             DateTime.UtcNow,
             1200.75m,
             null);
 
-        var id = await service.Create(dto);
+        var created = await service.Create(dto);
         var all = await repo.GetAll(1, 10, string.Empty);
 
         Assert.Single(all.Items);
-        Assert.Equal(id, all.Items[0].Id);
+        Assert.Equal(created.Id, all.Items[0].Id);
         Assert.Equal(1, uow.CommitCalls);
+    }
+
+    [Fact]
+    public async Task Update_ShouldChangeValues_AndCommit_WhenControlExists()
+    {
+        var repo = new FakeMaintenanceControlRepository();
+        var uow = new FakeUnitOfWork();
+        var service = new MaintenanceControlServices(repo, uow);
+        var existing = new MaintenanceControl(
+            Guid.NewGuid(),
+            DateTime.UtcNow.AddDays(-10),
+            900.50m,
+            "Troca de óleo");
+        await repo.Create(existing);
+
+        var updated = new MaintenanceControlUpdateDto(
+            existing.Id,
+            Guid.NewGuid(),
+            DateTime.UtcNow,
+            1200.75m,
+            "Revisao");
+
+        var updatedResult = await service.Update(updated);
+        var stored = await repo.GetById(existing.Id);
+
+        Assert.NotNull(updatedResult);
+        Assert.NotNull(stored);
+        Assert.Equal(updated.VehicleId, stored!.VehicleId);
+        Assert.Equal(updated.Date, stored.Date);
+        Assert.Equal(updated.Value, stored.Value);
+        Assert.Equal(updated.Description, stored.Description);
+        Assert.Equal(1, uow.CommitCalls);
+    }
+
+    [Fact]
+    public async Task Update_ShouldNotCommit_WhenControlDoesNotExist()
+    {
+        var repo = new FakeMaintenanceControlRepository();
+        var uow = new FakeUnitOfWork();
+        var service = new MaintenanceControlServices(repo, uow);
+        var updated = new MaintenanceControlUpdateDto(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            DateTime.UtcNow,
+            1200.75m,
+            null);
+
+        var updatedResult = await service.Update(updated);
+
+        Assert.Null(updatedResult);
+        Assert.Equal(0, uow.CommitCalls);
     }
 
     private sealed class FakeUnitOfWork : IUnitOfWork

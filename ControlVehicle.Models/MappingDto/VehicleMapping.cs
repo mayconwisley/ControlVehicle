@@ -10,9 +10,9 @@ public static class VehicleMapping
     {
         return vehicles.Select(s => s.ConvertVehicleToDto());
     }
-    public static IEnumerable<Vehicle> ConvertDtosToVehicles(this IEnumerable<VehicleDto> vehicleDtos)
+    public static IEnumerable<Vehicle> ConvertDtosToVehicles(this IEnumerable<VehicleCreateDto> vehicleDtos)
     {
-        return vehicleDtos.Select(s => s.ConvertDtoToVehicle());
+        return vehicleDtos.Select(s => s.ConvertCreateDtoToVehicle());
     }
     public static VehicleDto ConvertVehicleToDto(this Vehicle vehicle)
     {
@@ -28,9 +28,9 @@ public static class VehicleMapping
             vehicle.Active
         );
     }
-    public static Vehicle ConvertDtoToVehicle(this VehicleDto vehicleDto)
+    public static Vehicle ConvertCreateDtoToVehicle(this VehicleCreateDto vehicleDto)
     {
-        return new Vehicle
+        var vehicle = new Vehicle
         (
             LicensePlate.Create(vehicleDto.LicensePlate),
             vehicleDto.Model,
@@ -39,5 +39,12 @@ public static class VehicleMapping
             vehicleDto.Fuel,
             vehicleDto.VehicleColor
         );
+
+        if (!vehicleDto.Active)
+        {
+            vehicle.Deactivate();
+        }
+
+        return vehicle;
     }
 }

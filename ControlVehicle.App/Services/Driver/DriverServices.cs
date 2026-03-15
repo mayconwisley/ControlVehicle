@@ -24,24 +24,22 @@ public class DriverServices(IDriverRepository driverRepository, IUnitOfWork unit
 		return driver?.ConvertDriverToDto();
 	}
 
-	public async Task Create(DriverDto driver)
+	public async Task<DriverDto> Create(DriverCreateDto driver)
 	{
-		var driverEntity = new ControlVehicle.Domain.Entities.Driver(
-			driver.Name,
-			Cnh.Create(driver.Cnh),
-			CategoryCnh.Create(driver.CategoryCnh),
-			driver.DateExpiration);
+		var driverEntity = driver.ConvertCreateDtoToDriver();
 
 		await _driverRepository.Create(driverEntity);
 		await _unitOfWork.CommitAsync();
+
+		return driverEntity.ConvertDriverToDto();
 	}
 
-	public async Task Update(DriverDto driver)
+	public async Task<DriverDto?> Update(DriverUpdateDto driver)
 	{
 		var driverEntity = await _driverRepository.GetById(driver.Id);
 		if (driverEntity is null)
 		{
-			return;
+			return null;
 		}
 
 		driverEntity.Update(
@@ -50,8 +48,19 @@ public class DriverServices(IDriverRepository driverRepository, IUnitOfWork unit
 			CategoryCnh.Create(driver.CategoryCnh),
 			driver.DateExpiration);
 
+		if (driver.Active)
+		{
+			driverEntity.Activate();
+		}
+		else
+		{
+			driverEntity.Deactivate();
+		}
+
 		_driverRepository.Update(driverEntity);
 		await _unitOfWork.CommitAsync();
+
+		return driverEntity.ConvertDriverToDto();
 	}
 
 	public async Task Delete(string cnh)
