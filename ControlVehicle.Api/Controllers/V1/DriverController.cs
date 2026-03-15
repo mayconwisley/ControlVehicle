@@ -65,8 +65,15 @@ public class DriverController(IDriverServices driverServices) : ControllerBase
             return BadRequest();
         }
 
-        var createdDriver = await _driverServices.Create(driver);
-        return new CreatedAtRouteResult("GetDriverV1", new { version = "1", id = createdDriver.Id }, createdDriver);
+        try
+        {
+            var createdDriver = await _driverServices.Create(driver);
+            return new CreatedAtRouteResult("GetDriverV1", new { version = "1", id = createdDriver.Id }, createdDriver);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Problem(statusCode: StatusCodes.Status400BadRequest, title: "Validacao de CNH", detail: ex.Message);
+        }
     }
 
     [HttpPut("{id:Guid}")]
@@ -80,13 +87,20 @@ public class DriverController(IDriverServices driverServices) : ControllerBase
             return BadRequest();
         }
 
-        var updatedDriver = await _driverServices.Update(driver);
-        if (updatedDriver is null)
+        try
         {
-            return NotFound();
-        }
+            var updatedDriver = await _driverServices.Update(driver);
+            if (updatedDriver is null)
+            {
+                return NotFound();
+            }
 
-        return Ok(updatedDriver);
+            return Ok(updatedDriver);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Problem(statusCode: StatusCodes.Status400BadRequest, title: "Validacao de CNH", detail: ex.Message);
+        }
     }
 
     [HttpDelete("{cnh}")]

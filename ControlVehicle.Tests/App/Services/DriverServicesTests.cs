@@ -47,6 +47,47 @@ public class DriverServicesTests
         Assert.Equal(1, uow.CommitCalls);
     }
 
+    [Fact]
+    public async Task Create_ShouldThrow_WhenCnhExpirationIsExpired()
+    {
+        var repo = new FakeDriverRepository();
+        var uow = new FakeUnitOfWork();
+        var service = new DriverServices(repo, uow);
+        var dto = new DriverCreateDto(
+            "Ana",
+            "98765432100",
+            "A",
+            DateOnly.FromDateTime(DateTime.Today.AddDays(-1)),
+            true);
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => service.Create(dto));
+
+        Assert.Contains("data de validade da CNH esta vencida", ex.Message);
+        Assert.Equal(0, uow.CommitCalls);
+    }
+
+    [Fact]
+    public async Task Update_ShouldThrow_WhenCnhExpirationIsExpired()
+    {
+        var repo = new FakeDriverRepository();
+        var uow = new FakeUnitOfWork();
+        var existing = new Driver("Maycon", Cnh.Create("12345678901"), CategoryCnh.Create("B"), DateOnly.FromDateTime(DateTime.Today.AddYears(1)));
+        await repo.Create(existing);
+        var service = new DriverServices(repo, uow);
+        var dto = new DriverUpdateDto(
+            existing.Id,
+            existing.Name,
+            existing.Cnh.Number,
+            existing.CategoryCnh.Value,
+            DateOnly.FromDateTime(DateTime.Today.AddDays(-1)),
+            existing.Active);
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => service.Update(dto));
+
+        Assert.Contains("data de validade da CNH esta vencida", ex.Message);
+        Assert.Equal(0, uow.CommitCalls);
+    }
+
     private sealed class FakeUnitOfWork : IUnitOfWork
     {
         public int CommitCalls { get; private set; }

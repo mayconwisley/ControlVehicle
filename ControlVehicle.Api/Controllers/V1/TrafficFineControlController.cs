@@ -65,8 +65,15 @@ public class TrafficFineControlController(ITrafficFineControlServices controlSer
             return BadRequest();
         }
 
-        var createdControl = await _controlServices.Create(control);
-        return new CreatedAtRouteResult("GetTrafficFineControlV1", new { version = "1", id = createdControl.Id }, createdControl);
+        try
+        {
+            var createdControl = await _controlServices.Create(control);
+            return new CreatedAtRouteResult("GetTrafficFineControlV1", new { version = "1", id = createdControl.Id }, createdControl);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Problem(statusCode: StatusCodes.Status400BadRequest, title: "Validacao de CNH", detail: ex.Message);
+        }
     }
 
     [HttpPut("{id:Guid}")]
@@ -80,13 +87,20 @@ public class TrafficFineControlController(ITrafficFineControlServices controlSer
             return BadRequest();
         }
 
-        var updatedControl = await _controlServices.Update(control);
-        if (updatedControl is null)
+        try
         {
-            return NotFound();
-        }
+            var updatedControl = await _controlServices.Update(control);
+            if (updatedControl is null)
+            {
+                return NotFound();
+            }
 
-        return Ok(updatedControl);
+            return Ok(updatedControl);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Problem(statusCode: StatusCodes.Status400BadRequest, title: "Validacao de CNH", detail: ex.Message);
+        }
     }
 
     [HttpDelete("{id:Guid}")]

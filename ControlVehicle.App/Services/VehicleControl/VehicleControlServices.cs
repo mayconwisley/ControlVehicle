@@ -5,9 +5,10 @@ using ControlVehicle.Models.MappingDto;
 
 namespace ControlVehicle.App.Services.VehicleControl;
 
-public class VehicleControlServices(IVehicleControlRepository controlRepository, IUnitOfWork unitOfWork) : IVehicleControlServices
+public class VehicleControlServices(IVehicleControlRepository controlRepository, IDriverRepository driverRepository, IUnitOfWork unitOfWork) : IVehicleControlServices
 {
 	private readonly IVehicleControlRepository _controlRepository = controlRepository;
+	private readonly IDriverRepository _driverRepository = driverRepository;
 	private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
 	public async Task<IEnumerable<VehicleControlDto>> GetAll(int page, int size, string search)
@@ -24,6 +25,7 @@ public class VehicleControlServices(IVehicleControlRepository controlRepository,
 
 	public async Task<VehicleControlDto> Create(VehicleControlCreateDto control)
 	{
+		await ValidateDriverCnhExpiration(control.DriverId);
 		var controlEntity = control.ConvertCreateDtoToVehicleControl();
 		await _controlRepository.Create(controlEntity);
 		await _unitOfWork.CommitAsync();
@@ -37,6 +39,8 @@ public class VehicleControlServices(IVehicleControlRepository controlRepository,
 		{
 			return null;
 		}
+
+		await ValidateDriverCnhExpiration(control.DriverId);
 
 		controlEntity.Update(
 			control.VehicleId,
@@ -69,5 +73,20 @@ public class VehicleControlServices(IVehicleControlRepository controlRepository,
 	{
 		var pagedControls = await _controlRepository.GetAll(1, 1, string.Empty);
 		return pagedControls.TotalCount;
+	}
+
+	private async Task ValidateDriverCnhExpiration(Guid driverId)
+	{
+		var driver = await _driverRepository.GetById(driverId);
+		if (driver is null)
+		{
+			return;
+		}
+
+		var currentDate = DateOnly.FromDateTime(DateTime.Today);
+		if (driver.DateExpiration <= currentDate)
+		{
+			throw new InvalidOperationException("Nao foi possivel registrar o controle. A CNH do motorista esta vencida. Renove a CNH ou atualize o cadastro do motorista com a nova validade.");
+		}
 	}
 }

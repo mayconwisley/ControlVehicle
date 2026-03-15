@@ -2,6 +2,7 @@ using ControlVehicle.App.Services.FuelControl;
 using ControlVehicle.Domain.Entities;
 using ControlVehicle.Domain.Pagination;
 using ControlVehicle.Domain.Repositories;
+using ControlVehicle.Domain.ValueObjects;
 using ControlVehicle.Models.Dtos;
 
 namespace ControlVehicle.Tests.App.Services;
@@ -12,12 +13,14 @@ public class FuelControlServicesTests
     public async Task GetById_ShouldReturnDto_WhenControlExists()
     {
         var repo = new FakeFuelControlRepository();
+        var driverRepo = new FakeDriverRepository();
         var uow = new FakeUnitOfWork();
         var vehicleId = Guid.NewGuid();
-        var driverId = Guid.NewGuid();
+        var driver = new Driver("Motorista", Cnh.Create("12345678901"), CategoryCnh.Create("B"), DateOnly.FromDateTime(DateTime.Today.AddYears(1)));
+        await driverRepo.Create(driver);
         var existing = new FuelControl(
             vehicleId,
-            driverId,
+            driver.Id,
             1200.5m,
             450.75m,
             DateTime.UtcNow,
@@ -25,7 +28,7 @@ public class FuelControlServicesTests
             "Abastecimento");
         await repo.Create(existing);
 
-        var service = new FuelControlServices(repo, uow);
+        var service = new FuelControlServices(repo, driverRepo, uow);
         var result = await service.GetById(existing.Id);
 
         Assert.NotNull(result);
@@ -39,11 +42,14 @@ public class FuelControlServicesTests
     public async Task Create_ShouldPersistControl_AndCommit()
     {
         var repo = new FakeFuelControlRepository();
+        var driverRepo = new FakeDriverRepository();
         var uow = new FakeUnitOfWork();
-        var service = new FuelControlServices(repo, uow);
+        var driver = new Driver("Ana", Cnh.Create("98765432100"), CategoryCnh.Create("B"), DateOnly.FromDateTime(DateTime.Today.AddYears(1)));
+        await driverRepo.Create(driver);
+        var service = new FuelControlServices(repo, driverRepo, uow);
         var dto = new FuelControlCreateDto(
             Guid.NewGuid(),
-            Guid.NewGuid(),
+            driver.Id,
             5000m,
             650.10m,
             DateTime.UtcNow,
@@ -59,14 +65,43 @@ public class FuelControlServicesTests
     }
 
     [Fact]
+    public async Task Create_ShouldThrow_WhenDriverCnhIsExpired()
+    {
+        var repo = new FakeFuelControlRepository();
+        var driverRepo = new FakeDriverRepository();
+        var uow = new FakeUnitOfWork();
+        var expiredDriver = new Driver("Expirado", Cnh.Create("33333333333"), CategoryCnh.Create("B"), DateOnly.FromDateTime(DateTime.Today.AddDays(-1)));
+        await driverRepo.Create(expiredDriver);
+        var service = new FuelControlServices(repo, driverRepo, uow);
+        var dto = new FuelControlCreateDto(
+            Guid.NewGuid(),
+            expiredDriver.Id,
+            5000m,
+            650.10m,
+            DateTime.UtcNow,
+            60.5m,
+            null);
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => service.Create(dto));
+
+        Assert.Contains("CNH do motorista esta vencida", ex.Message);
+        Assert.Equal(0, uow.CommitCalls);
+    }
+
+    [Fact]
     public async Task Update_ShouldChangeValues_AndCommit_WhenControlExists()
     {
         var repo = new FakeFuelControlRepository();
+        var driverRepo = new FakeDriverRepository();
         var uow = new FakeUnitOfWork();
-        var service = new FuelControlServices(repo, uow);
+        var oldDriver = new Driver("Antigo", Cnh.Create("11111111111"), CategoryCnh.Create("B"), DateOnly.FromDateTime(DateTime.Today.AddYears(1)));
+        var newDriver = new Driver("Novo", Cnh.Create("22222222222"), CategoryCnh.Create("B"), DateOnly.FromDateTime(DateTime.Today.AddYears(1)));
+        await driverRepo.Create(oldDriver);
+        await driverRepo.Create(newDriver);
+        var service = new FuelControlServices(repo, driverRepo, uow);
         var existing = new FuelControl(
             Guid.NewGuid(),
-            Guid.NewGuid(),
+            oldDriver.Id,
             1200.5m,
             450.75m,
             DateTime.UtcNow.AddDays(-1),
@@ -77,7 +112,7 @@ public class FuelControlServicesTests
         var updated = new FuelControlUpdateDto(
             existing.Id,
             Guid.NewGuid(),
-            Guid.NewGuid(),
+            newDriver.Id,
             2000.1m,
             800.00m,
             DateTime.UtcNow,
@@ -103,8 +138,9 @@ public class FuelControlServicesTests
     public async Task Update_ShouldNotCommit_WhenControlDoesNotExist()
     {
         var repo = new FakeFuelControlRepository();
+        var driverRepo = new FakeDriverRepository();
         var uow = new FakeUnitOfWork();
-        var service = new FuelControlServices(repo, uow);
+        var service = new FuelControlServices(repo, driverRepo, uow);
         var updated = new FuelControlUpdateDto(
             Guid.NewGuid(),
             Guid.NewGuid(),
@@ -169,5 +205,37 @@ public class FuelControlServicesTests
 
         public void Delete(FuelControl control)
             => _controls.RemoveAll(c => c.Id == control.Id);
+    }
+
+    private sealed class FakeDriverRepository : IDriverRepository
+    {
+        private readonly List<Driver> _drivers = [];
+
+        public Task<PagedData<Driver>> GetAll(int page = 1, int size = 5, string? search = null, CancellationToken ct = default)
+            => Task.FromResult(new PagedData<Driver>(_drivers, _drivers.Count));
+
+        public Task<Driver?> GetById(Guid id, CancellationToken ct = default)
+            => Task.FromResult(_drivers.SingleOrDefault(d => d.Id == id));
+
+        public Task<Driver?> GetByCnh(Cnh cnh, CancellationToken ct = default)
+            => Task.FromResult(_drivers.SingleOrDefault(d => d.Cnh.Number == cnh.Number));
+
+        public Task Create(Driver driver, CancellationToken ct = default)
+        {
+            _drivers.Add(driver);
+            return Task.CompletedTask;
+        }
+
+        public void Update(Driver driver)
+        {
+            var index = _drivers.FindIndex(d => d.Id == driver.Id);
+            if (index >= 0)
+            {
+                _drivers[index] = driver;
+            }
+        }
+
+        public void Delete(Driver driver)
+            => _drivers.RemoveAll(d => d.Id == driver.Id);
     }
 }

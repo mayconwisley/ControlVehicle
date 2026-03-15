@@ -26,6 +26,7 @@ public class DriverServices(IDriverRepository driverRepository, IUnitOfWork unit
 
 	public async Task<DriverDto> Create(DriverCreateDto driver)
 	{
+		ValidateDriverCnhExpiration(driver.DateExpiration);
 		var driverEntity = driver.ConvertCreateDtoToDriver();
 
 		await _driverRepository.Create(driverEntity);
@@ -36,6 +37,7 @@ public class DriverServices(IDriverRepository driverRepository, IUnitOfWork unit
 
 	public async Task<DriverDto?> Update(DriverUpdateDto driver)
 	{
+		ValidateDriverCnhExpiration(driver.DateExpiration);
 		var driverEntity = await _driverRepository.GetById(driver.Id);
 		if (driverEntity is null)
 		{
@@ -80,5 +82,14 @@ public class DriverServices(IDriverRepository driverRepository, IUnitOfWork unit
 	{
 		var pagedDrivers = await _driverRepository.GetAll(1, 1, string.Empty);
 		return pagedDrivers.TotalCount;
+	}
+
+	private static void ValidateDriverCnhExpiration(DateOnly dateExpiration)
+	{
+		var currentDate = DateOnly.FromDateTime(DateTime.Today);
+		if (dateExpiration < currentDate)
+		{
+			throw new InvalidOperationException("Nao foi possivel salvar o motorista. A data de validade da CNH esta vencida. Informe uma validade atualizada.");
+		}
 	}
 }

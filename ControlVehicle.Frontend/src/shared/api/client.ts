@@ -5,6 +5,26 @@ const API_BASE_URL = import.meta.env.VITE_API_URL ?? "https://localhost:7096/api
 type QueryParams = Record<string, string | number | undefined>;
 type HttpMethod = "POST" | "PUT" | "DELETE";
 
+const normalizeText = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+const mapKnownErrorMessage = (title?: string, detail?: string) => {
+  const normalizedTitle = title ? normalizeText(title) : "";
+  const normalizedDetail = detail ? normalizeText(detail) : "";
+
+  if (
+    normalizedTitle.includes("validacao de cnh") ||
+    normalizedDetail.includes("cnh do motorista esta vencida")
+  ) {
+    return "Nao foi possivel registrar o controle. A CNH do motorista esta vencida na data atual. Renove a CNH ou atualize o cadastro do motorista com a nova validade.";
+  }
+
+  if (normalizedDetail.includes("data de validade da cnh esta vencida")) {
+    return "Nao foi possivel salvar o motorista. A data de validade da CNH esta vencida. Informe uma validade atualizada.";
+  }
+
+  return null;
+};
+
 const buildUrl = (path: string, query?: QueryParams) => {
   const url = new URL(`${API_BASE_URL}/${path}`);
 
@@ -76,7 +96,13 @@ export const getResourcePage = async <TItem>(
 const parseErrorMessage = async (response: Response) => {
   try {
     const payload = (await response.json()) as Record<string, unknown>;
-    const detail = payload.detail;
+    const title = typeof payload.title === "string" ? payload.title : undefined;
+    const detail = typeof payload.detail === "string" ? payload.detail : undefined;
+    const knownMessage = mapKnownErrorMessage(title, detail);
+    if (knownMessage) {
+      return knownMessage;
+    }
+
     if (typeof detail === "string" && detail.length > 0) {
       return detail;
     }

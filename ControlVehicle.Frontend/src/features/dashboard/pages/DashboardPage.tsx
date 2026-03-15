@@ -34,6 +34,18 @@ export const DashboardPage = () => {
     void loadSummary();
   }, []);
 
+  useEffect(() => {
+    if (!error) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setError(null);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [error]);
+
   return (
     <Stack spacing={2}>
       <Stack spacing={0.5}>

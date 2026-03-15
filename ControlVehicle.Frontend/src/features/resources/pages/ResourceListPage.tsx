@@ -39,6 +39,10 @@ export const ResourceListPage = () => {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  const isDriverBoundControl =
+    definition?.key === "VehicleControl" || definition?.key === "FuelControl" || definition?.key === "TrafficFineControl";
+  const isDriverResource = definition?.key === "Driver";
+
   const loadData = useCallback(async () => {
     if (!definition) {
       return;
@@ -70,6 +74,30 @@ export const ResourceListPage = () => {
     return () => clearTimeout(timer);
   }, [loadData]);
 
+  useEffect(() => {
+    if (!error) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setError(null);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [error]);
+
+  useEffect(() => {
+    if (!feedback) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setFeedback(null);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [feedback]);
+
   const handleCreateClick = () => {
     setSelectedRow(null);
     setIsEdit(false);
@@ -90,6 +118,48 @@ export const ResourceListPage = () => {
   const handleSubmit = async (payload: Record<string, unknown>) => {
     if (!definition) {
       return;
+    }
+
+    if (isDriverResource) {
+      const dateExpiration = String(payload.dateExpiration ?? "").trim();
+      if (dateExpiration) {
+        const expirationDate = new Date(`${dateExpiration}T00:00:00`);
+        const currentDate = new Date();
+        const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+
+        if (!Number.isNaN(expirationDate.getTime()) && expirationDate < today) {
+          setError(
+            "Nao foi possivel salvar o motorista. A data de validade da CNH esta vencida. Informe uma validade atualizada."
+          );
+          return;
+        }
+      }
+    }
+
+    if (isDriverBoundControl) {
+      const driverId = String(payload.driverId ?? "").trim();
+      if (driverId) {
+        try {
+          const driverResponse = await getResourcePage<Record<string, unknown>>("Driver", 1, 1, driverId);
+          const selectedDriver = driverResponse.items.find((item) => String(item.id ?? "") === driverId);
+          const expiration = selectedDriver?.dateExpiration;
+
+          if (typeof expiration === "string" && expiration.length > 0) {
+            const expirationDate = new Date(`${expiration}T00:00:00`);
+            const currentDate = new Date();
+            const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+
+            if (!Number.isNaN(expirationDate.getTime()) && expirationDate < today) {
+              setError(
+                "Nao foi possivel registrar o controle. A CNH do motorista esta vencida na data atual. Renove a CNH ou atualize o cadastro do motorista com a nova validade."
+              );
+              return;
+            }
+          }
+        } catch {
+          // Keep behavior unchanged if local check fails to load.
+        }
+      }
     }
 
     setSaving(true);

@@ -5,9 +5,10 @@ using ControlVehicle.Models.MappingDto;
 
 namespace ControlVehicle.App.Services.TrafficFineControl;
 
-public class TrafficFineControlServices(ITrafficFineControlRepository controlRepository, IUnitOfWork unitOfWork) : ITrafficFineControlServices
+public class TrafficFineControlServices(ITrafficFineControlRepository controlRepository, IDriverRepository driverRepository, IUnitOfWork unitOfWork) : ITrafficFineControlServices
 {
     private readonly ITrafficFineControlRepository _controlRepository = controlRepository;
+    private readonly IDriverRepository _driverRepository = driverRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<IEnumerable<TrafficFineControlDto>> GetAll(int page, int size, string search)
@@ -24,6 +25,7 @@ public class TrafficFineControlServices(ITrafficFineControlRepository controlRep
 
     public async Task<TrafficFineControlDto> Create(TrafficFineControlCreateDto control)
     {
+        await ValidateDriverCnhExpiration(control.DriverId);
         var controlEntity = control.ConvertCreateDtoToTrafficFineControl();
         await _controlRepository.Create(controlEntity);
         await _unitOfWork.CommitAsync();
@@ -37,6 +39,8 @@ public class TrafficFineControlServices(ITrafficFineControlRepository controlRep
         {
             return null;
         }
+
+        await ValidateDriverCnhExpiration(control.DriverId);
 
         controlEntity.Update(
             control.VehicleId,
@@ -68,5 +72,20 @@ public class TrafficFineControlServices(ITrafficFineControlRepository controlRep
     {
         var pagedControls = await _controlRepository.GetAll(1, 1, string.Empty);
         return pagedControls.TotalCount;
+    }
+
+    private async Task ValidateDriverCnhExpiration(Guid driverId)
+    {
+        var driver = await _driverRepository.GetById(driverId);
+        if (driver is null)
+        {
+            return;
+        }
+
+        var currentDate = DateOnly.FromDateTime(DateTime.Today);
+        if (driver.DateExpiration <= currentDate)
+        {
+            throw new InvalidOperationException("Nao foi possivel registrar o controle. A CNH do motorista esta vencida. Renove a CNH ou atualize o cadastro do motorista com a nova validade.");
+        }
     }
 }

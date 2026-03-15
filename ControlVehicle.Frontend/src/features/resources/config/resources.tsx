@@ -50,7 +50,18 @@ const dateCell = (value: unknown) => {
     return "-";
   }
 
-  return new Date(value).toLocaleDateString("pt-BR");
+  const dateOnlyMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+  if (dateOnlyMatch) {
+    const [, year, month, day] = dateOnlyMatch;
+    return `${day}/${month}/${year}`;
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return "-";
+  }
+
+  return parsed.toLocaleDateString("pt-BR");
 };
 
 const dateTimeCell = (value: unknown) => {
