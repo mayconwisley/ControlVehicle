@@ -1,6 +1,316 @@
 @ControlVehicle.Api_HostAddress = http://localhost:5027
+@apiVersion = 1
+@contentType = application/json
 
-GET {{ControlVehicle.Api_HostAddress}}/weatherforecast/
+# IDs/Campos fixos para testes
+@driverId = 11111111-1111-1111-1111-111111111111
+@driverCnh = 12345678901
+@driverCnhUpdate = 10987654321
+@vehicleId = 22222222-2222-2222-2222-222222222222
+@vehicleRenavam = 12345678910
+@vehicleRenavamUpdate = 10987654321
+@vehiclePlate = ABC1D23
+@vehiclePlateUpdate = XYZ9K87
+@vehicleControlId = 33333333-3333-3333-3333-333333333333
+@fuelControlId = 44444444-4444-4444-4444-444444444444
+@maintenanceControlId = 55555555-5555-5555-5555-555555555555
+@trafficFineControlId = 66666666-6666-6666-6666-666666666666
+
+### =========================
+### DRIVER
+### =========================
+
+### Driver - GetAll (paginacao + busca)
+GET {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/Driver?page=1&size=5&search=may
 Accept: application/json
 
 ###
+### Driver - GetByCnh
+GET {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/Driver/{{driverCnh}}
+Accept: application/json
+
+###
+### Driver - Create
+POST {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/Driver
+Content-Type: {{contentType}}
+Accept: application/json
+
+{
+  "name": "Maycon Motorista",
+  "cnh": "{{driverCnh}}",
+  "categoryCnh": "B",
+  "dateExpiration": "2030-12-31",
+  "active": true
+}
+
+###
+### Driver - Update
+PUT {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/Driver/{{driverId}}
+Content-Type: {{contentType}}
+Accept: application/json
+
+{
+  "id": "{{driverId}}",
+  "name": "Maycon Motorista Atualizado",
+  "cnh": "{{driverCnhUpdate}}",
+  "categoryCnh": "AB",
+  "dateExpiration": "2032-06-15",
+  "active": true
+}
+
+###
+### Driver - Delete
+DELETE {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/Driver/{{driverCnh}}
+Accept: application/json
+
+### =========================
+### VEHICLE
+### =========================
+
+### Vehicle - GetAll (paginacao + busca)
+GET {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/Vehicle?page=1&size=5&search=corolla
+Accept: application/json
+
+###
+### Vehicle - GetByPlate
+GET {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/Vehicle/Plate/{{vehiclePlate}}
+Accept: application/json
+
+###
+### Vehicle - GetByRenavam
+GET {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/Vehicle/Renavam/{{vehicleRenavam}}
+Accept: application/json
+
+###
+### Vehicle - Create
+POST {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/Vehicle
+Content-Type: {{contentType}}
+Accept: application/json
+
+{
+  "renavam": "{{vehicleRenavam}}",
+  "model": "Toyota Corolla XEi",
+  "licensePlate": "{{vehiclePlate}}",
+  "fuel": "Flex",
+  "chassi": "9BWZZZ377VT004251",
+  "vehicleColor": "Silver",
+  "active": true
+}
+
+###
+### Vehicle - Update
+PUT {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/Vehicle/{{vehicleId}}
+Content-Type: {{contentType}}
+Accept: application/json
+
+{
+  "id": "{{vehicleId}}",
+  "renavam": "{{vehicleRenavamUpdate}}",
+  "model": "Toyota Corolla Altis",
+  "licensePlate": "{{vehiclePlateUpdate}}",
+  "fuel": "Hybrid",
+  "chassi": "9BWZZZ377VT004251",
+  "vehicleColor": "Black",
+  "active": true
+}
+
+###
+### Vehicle - Delete
+DELETE {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/Vehicle/{{vehicleRenavam}}
+Accept: application/json
+
+### =========================
+### VEHICLE CONTROL
+### =========================
+
+### VehicleControl - GetAll (paginacao + busca)
+GET {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/VehicleControl?page=1&size=5&search=viagem
+Accept: application/json
+
+###
+### VehicleControl - GetById
+GET {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/VehicleControl/{{vehicleControlId}}
+Accept: application/json
+
+###
+### VehicleControl - Create
+POST {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/VehicleControl
+Content-Type: {{contentType}}
+Accept: application/json
+
+{
+  "vehicleId": "{{vehicleId}}",
+  "driverId": "{{driverId}}",
+  "departureDate": "2026-03-15T08:00:00Z",
+  "arrivalDate": "2026-03-15T17:30:00Z",
+  "initialKm": 12500.5,
+  "finalKm": 12685.9,
+  "description": "Viagem para visita tecnica em cliente."
+}
+
+###
+### VehicleControl - Update
+PUT {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/VehicleControl/{{vehicleControlId}}
+Content-Type: {{contentType}}
+Accept: application/json
+
+{
+  "id": "{{vehicleControlId}}",
+  "vehicleId": "{{vehicleId}}",
+  "driverId": "{{driverId}}",
+  "departureDate": "2026-03-16T08:00:00Z",
+  "arrivalDate": "2026-03-16T18:00:00Z",
+  "initialKm": 12686.0,
+  "finalKm": 12830.7,
+  "description": "Viagem atualizada para atendimento externo."
+}
+
+###
+### VehicleControl - Delete
+DELETE {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/VehicleControl/{{vehicleControlId}}
+Accept: application/json
+
+### =========================
+### FUEL CONTROL
+### =========================
+
+### FuelControl - GetAll (paginacao + busca)
+GET {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/FuelControl?page=1&size=5&search=posto
+Accept: application/json
+
+###
+### FuelControl - GetById
+GET {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/FuelControl/{{fuelControlId}}
+Accept: application/json
+
+###
+### FuelControl - Create
+POST {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/FuelControl
+Content-Type: {{contentType}}
+Accept: application/json
+
+{
+  "vehicleId": "{{vehicleId}}",
+  "driverId": "{{driverId}}",
+  "initialKm": 12830.7,
+  "value": 312.45,
+  "date": "2026-03-15T10:00:00Z",
+  "liters": 52.2,
+  "description": "Abastecimento completo no posto central."
+}
+
+###
+### FuelControl - Update
+PUT {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/FuelControl/{{fuelControlId}}
+Content-Type: {{contentType}}
+Accept: application/json
+
+{
+  "id": "{{fuelControlId}}",
+  "vehicleId": "{{vehicleId}}",
+  "driverId": "{{driverId}}",
+  "initialKm": 12910.2,
+  "value": 198.99,
+  "date": "2026-03-16T09:30:00Z",
+  "liters": 31.4,
+  "description": "Abastecimento parcial atualizado."
+}
+
+###
+### FuelControl - Delete
+DELETE {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/FuelControl/{{fuelControlId}}
+Accept: application/json
+
+### =========================
+### MAINTENANCE CONTROL
+### =========================
+
+### MaintenanceControl - GetAll (paginacao + busca)
+GET {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/MaintenanceControl?page=1&size=5&search=troca
+Accept: application/json
+
+###
+### MaintenanceControl - GetById
+GET {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/MaintenanceControl/{{maintenanceControlId}}
+Accept: application/json
+
+###
+### MaintenanceControl - Create
+POST {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/MaintenanceControl
+Content-Type: {{contentType}}
+Accept: application/json
+
+{
+  "vehicleId": "{{vehicleId}}",
+  "date": "2026-03-15T14:00:00Z",
+  "value": 850.00,
+  "description": "Troca de oleo, filtro e alinhamento."
+}
+
+###
+### MaintenanceControl - Update
+PUT {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/MaintenanceControl/{{maintenanceControlId}}
+Content-Type: {{contentType}}
+Accept: application/json
+
+{
+  "id": "{{maintenanceControlId}}",
+  "vehicleId": "{{vehicleId}}",
+  "date": "2026-03-18T14:00:00Z",
+  "value": 920.75,
+  "description": "Revisao atualizada com balanceamento."
+}
+
+###
+### MaintenanceControl - Delete
+DELETE {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/MaintenanceControl/{{maintenanceControlId}}
+Accept: application/json
+
+### =========================
+### TRAFFIC FINE CONTROL
+### =========================
+
+### TrafficFineControl - GetAll (paginacao + busca)
+GET {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/TrafficFineControl?page=1&size=5&search=radar
+Accept: application/json
+
+###
+### TrafficFineControl - GetById
+GET {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/TrafficFineControl/{{trafficFineControlId}}
+Accept: application/json
+
+###
+### TrafficFineControl - Create
+POST {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/TrafficFineControl
+Content-Type: {{contentType}}
+Accept: application/json
+
+{
+  "vehicleId": "{{vehicleId}}",
+  "driverId": "{{driverId}}",
+  "points": 5,
+  "value": 293.47,
+  "date": "2026-03-14T11:20:00Z",
+  "description": "Excesso de velocidade em via urbana."
+}
+
+###
+### TrafficFineControl - Update
+PUT {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/TrafficFineControl/{{trafficFineControlId}}
+Content-Type: {{contentType}}
+Accept: application/json
+
+{
+  "id": "{{trafficFineControlId}}",
+  "vehicleId": "{{vehicleId}}",
+  "driverId": "{{driverId}}",
+  "points": 7,
+  "value": 880.41,
+  "date": "2026-03-17T16:10:00Z",
+  "description": "Multa gravissima atualizada."
+}
+
+###
+### TrafficFineControl - Delete
+DELETE {{ControlVehicle.Api_HostAddress}}/api/v{{apiVersion}}/TrafficFineControl/{{trafficFineControlId}}
+Accept: application/json

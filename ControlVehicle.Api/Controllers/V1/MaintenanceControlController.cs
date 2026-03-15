@@ -1,7 +1,6 @@
 using Asp.Versioning;
 using ControlVehicle.App.Services.MaintenanceControl.Interface;
 using ControlVehicle.Models.Dtos;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ControlVehicle.Api.Controllers.V1;
@@ -56,39 +55,39 @@ public class MaintenanceControlController(IMaintenanceControlServices controlSer
         return Ok(control);
     }
 
-	[HttpPost]
-	[ProducesResponseType(StatusCodes.Status201Created)]
-	[ProducesResponseType(StatusCodes.Status400BadRequest)]
-	public async Task<ActionResult<MaintenanceControlDto>> Post([FromBody] MaintenanceControlCreateDto control)
-	{
-		if (control is null)
-		{
-			return BadRequest();
-		}
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<MaintenanceControlDto>> Post([FromBody] MaintenanceControlCreateDto control)
+    {
+        if (control is null)
+        {
+            return BadRequest();
+        }
 
-		var createdControl = await _controlServices.Create(control);
-		return new CreatedAtRouteResult("GetMaintenanceControlV1", new { version = "1", id = createdControl.Id }, createdControl);
-	}
+        var createdControl = await _controlServices.Create(control);
+        return new CreatedAtRouteResult("GetMaintenanceControlV1", new { version = "1", id = createdControl.Id }, createdControl);
+    }
 
-	[HttpPut("{id:Guid}")]
-	[ProducesResponseType(StatusCodes.Status200OK)]
-	[ProducesResponseType(StatusCodes.Status400BadRequest)]
-	[ProducesResponseType(StatusCodes.Status404NotFound)]
-	public async Task<ActionResult<MaintenanceControlDto>> Put(Guid id, [FromBody] MaintenanceControlUpdateDto control)
-	{
-		if (control is null || id != control.Id)
-		{
-			return BadRequest();
-		}
+    [HttpPut("{id:Guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<MaintenanceControlDto>> Put(Guid id, [FromBody] MaintenanceControlUpdateDto control)
+    {
+        if (control is null || id != control.Id)
+        {
+            return BadRequest();
+        }
 
-		var updatedControl = await _controlServices.Update(control);
-		if (updatedControl is null)
-		{
-			return NotFound();
-		}
+        var updatedControl = await _controlServices.Update(control);
+        if (updatedControl is null)
+        {
+            return NotFound();
+        }
 
-		return Ok(updatedControl);
-	}
+        return Ok(updatedControl);
+    }
 
     [HttpDelete("{id:Guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
